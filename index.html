@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fluxo de Organização</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; min-height: 100%; background: #0E0E10; }
+  body { font-family: "Geist", "SF Pro Text", system-ui, sans-serif; color: #F4F4F5; -webkit-font-smoothing: antialiased; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  .wrap { width: min(560px, 92vw); padding: 40px 0; }
+  h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 6px; }
+  .sub { font-family: "Geist Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #6E6E74; margin-bottom: 28px; }
+  a.card { display: flex; align-items: center; gap: 14px; padding: 16px 18px; background: #1A1A1D; border-radius: 14px; margin-bottom: 12px; text-decoration: none; color: inherit; box-shadow: 0 1px 2px rgba(0,0,0,0.5); transition: background .15s; }
+  a.card:hover { background: #232327; }
+  .badge { width: 36px; height: 36px; border-radius: 9999px; background: #F4F4F5; color: #0A0A0A; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex: none; }
+  .t { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+  .d { font-family: "Geist Mono", ui-monospace, monospace; font-size: 11px; color: #6E6E74; margin-top: 2px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Fluxo de Organização</h1>
+    <div class="sub">Teste · máquinas de produto</div>
+    <a class="card" href="./kanban.html">
+      <span class="badge">KB</span>
+      <span><span class="t">Máquina Kanban</span><br><span class="d">Esteira · da ideia ao publicado</span></span>
+    </a>
+    <a class="card" href="./low-ticket-v2.html">
+      <span class="badge">V2</span>
+      <span><span class="t">Máquina de Low Ticket v2</span><br><span class="d">Versão 2</span></span>
+    </a>
+    <a class="card" href="./low-ticket.html">
+      <span class="badge">LT</span>
+      <span><span class="t">Máquina de Low Ticket</span><br><span class="d">Versão original</span></span>
+    </a>
+  </div>
+</body>
+</html>

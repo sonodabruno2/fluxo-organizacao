@@ -49,8 +49,8 @@ svg { pointer-events: none; }
     <sc-for list="{{ estagiosK }}" as="sg" hint-placeholder-count="4">
 
       <!-- Stage group -->
-      <div style="display: flex; flex-direction: column; flex: none; min-height: 0;">
-        <div style="display: flex; align-items: baseline; gap: 10px; padding: 4px 8px 12px; flex: none;">
+      <div style="display: flex; flex-direction: column; flex: none; min-height: 0; background: #16161A; border-radius: 20px; padding: 14px 14px 10px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);">
+        <div style="display: flex; align-items: baseline; gap: 10px; padding: 2px 6px 12px; flex: none;">
           <span style="width: 22px; height: 22px; border-radius: 7px; background: {{ sg.cor }}; color: {{ sg.corFg }}; display: inline-flex; align-items: center; justify-content: center; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; font-weight: 600; align-self: center; flex: none;">{{ sg.num }}</span>
           <span style="font-size: 15px; font-weight: 500; letter-spacing: -0.008em;">{{ sg.nome }}</span>
           <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #6E6E74; font-variant-numeric: tabular-nums;">{{ sg.count }}</span>
@@ -84,7 +84,7 @@ svg { pointer-events: none; }
                     <div style="font-size: 13px; font-weight: 500; letter-spacing: -0.005em; line-height: 1.35;">{{ k.nome }}</div>
                     <sc-if value="{{ k.hasBar }}">
                       <div style="display: flex; align-items: center; gap: 9px;">
-                        <div style="flex: 1; height: 3.5px; border-radius: 9999px; background: #2A2A2E; overflow: hidden;"><div style="height: 100%; border-radius: 9999px; background: #F4F4F5; width: {{ k.pct }};"></div></div>
+                        <div style="flex: 1; height: 3.5px; border-radius: 9999px; background: #1A1A1E; overflow: hidden;"><div style="height: 100%; border-radius: 9999px; background: #8A8A90; width: {{ k.pct }};"></div></div>
                         <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: #A8A8AE; font-variant-numeric: tabular-nums;">{{ k.chk }}</span>
                       </div>
                     </sc-if>
@@ -835,6 +835,44 @@ class Component extends DCLogic {
     };
     const open = (i) => () => this.setState({ modal: i.id, modalTab: "visao", matTab: "estrutura", confirmaExcluir: false, lpExp: {}, jsonCopiado: false });
 
+    /* Progresso do produto (0-100) — MESMA lógica do checklist do modal (grpDefs/autoDone).
+       Se mudar as regras de progresso no modal, replicar aqui. Usa DET (definido adiante),
+       por isso só é chamado quando estagiosDef roda, já depois de DET. */
+    const progressoItem = (it) => {
+      const d = { ...(DET[it.id] || {}), ...((this.state.detExtra || {})[it.id] || {}) };
+      const doc = (this.state.docs || {})[it.id] || {};
+      const sIdx = COL_ESTAGIO[it.col] ?? 0;
+      const conteudo = doc.conteudo ?? (d.conteudo || "");
+      const palavras = conteudo.trim() ? conteudo.trim().split(/\s+/).length : 0;
+      const arquivoNome = doc.arquivo ?? (it.arquivoMaterial || "");
+      const lpLink = doc.lpLink ?? (it.lpLink || "");
+      const lpHref = /^https?:\/\//i.test(lpLink) ? lpLink : (lpLink ? "https://" + lpLink : "");
+      const precoM = /R\$ ?[\d.,]+ ?(mil)?/.exec(it.grupo || "");
+      const preco = d.preco || (precoM ? precoM[0].trim() : "a definir");
+      const quem = doc.pubQuem ?? (d.publico || it.desc || "");
+      const dor = doc.pubDor ?? (d.dor || "");
+      const emProdPlus = ["noar", "apublicar", "publicados"].includes(it.col);
+      const autoDone = {
+        pub_quem: quem.trim().length > 0,
+        pub_dor: dor.trim().length > 0 || !!d.promessa,
+        est_conteudo: palavras > 0,
+        est_material: !!arquivoNome,
+        est_lp: !!lpHref,
+        est_criativo: sIdx >= 3,
+        prod_teste: sIdx >= 2,
+        prod_veloc: sIdx >= 2,
+        prod_hosp: emProdPlus,
+        pub_preco: !!preco && preco !== "a definir",
+        pub_bot: it.col === "publicados",
+      };
+      const checkOv = doc.check || {};
+      const keys = ["pub_quem", "pub_dor", "est_conteudo", "est_material", "est_lp", "est_criativo", "prod_teste", "prod_veloc", "prod_hosp", "pub_preco", "pub_bot"];
+      let tot = 0, done = 0;
+      keys.forEach(k => { tot++; if (checkOv[k] ?? autoDone[k]) done++; });
+      return Math.round(done / tot * 100);
+    };
+    const barra = (i) => { const p = progressoItem(i); return { hasBar: true, pct: p + "%", chk: p + "%" }; };
+
     const cardIdeia = (i) => ({
       ...base, nome: i.nome, grupo: i.grupo, dragStart: drag(i), abrir: open(i),
       opacity: i.tag === "descartado" ? 0.55 : 1,
@@ -910,30 +948,7 @@ class Component extends DCLogic {
       },
     });
 
-    const estagiosDef = [
-      ["0", "Catálogo", "ideias em triagem", "460px", 2, [
-        mkCol("Ideias", "#6E8FFA", "triagem", "ideias", ideias.map(cardIdeia)),
-        mkCol("Prioridade", "#FF8A65", "na fila", "prioridade", by("prioridade").map(cardPrio)),
-      ]],
-      ["1", "Estruturação", "material, copy e criativo", "250px", 1, [
-        mkCol("Em estruturação", "#6E8FFA", "4 itens", "estrut", by("estrut").map(cardEstrut)),
-      ]],
-      ["2", "Produção", "LP e material na bancada", "460px", 2, [
-        mkCol("Em produção", "#FFC78A", "bancada", "prod", by("prod").map(cardProd)),
-        mkCol("No ar", "#3EE0CC", "conferir", "noar", by("noar").map(cardNoar)),
-      ]],
-      ["3", "Completos", "publicados e na fila", "460px", 2, [
-        mkCol("A publicar", "#FFC78A", "fila", "apublicar", by("apublicar").map(cardFila)),
-        mkCol("Publicados", "#3EE0CC", "no bot", "publicados", by("publicados").map(cardPub)),
-      ]],
-    ];
-
-    const estagiosK = estagiosDef.map(([num, nome, desc, minW, flex, cols], ix) => ({
-      num, nome, desc, minW, flex, cols,
-      cor: ESTAGIO_CORES[ix] || "#F4F4F5", corFg: ESTAGIO_FG[ix] || "#0A0A0A",
-      count: cols.reduce((s, c) => s + c.count, 0),
-      hasArrow: ix < estagiosDef.length - 1,
-    }));
+    /* estagiosDef/estagiosK montados adiante (após DET), pois a barra de cada card usa progressoItem(). */
 
     /* ---------- modal do produto ---------- */
     const pad2 = (x) => String(x).padStart(2, "0");
@@ -1129,6 +1144,32 @@ class Component extends DCLogic {
         conteudo: "PARTE 1 — Como seu filho se desenvolve: marcos de 0 a 3 anos (sem neurose)\n\nNos 3 primeiros anos o cérebro forma até 1 milhão de conexões por segundo — e o que mais acelera isso não é brinquedo importado: é interação com você. A boa notícia: 10 minutos de brincadeira com propósito valem mais que uma tarde de estímulo aleatório.\n\nA conta que fecha pra mãe cansada: 1 atividade por dia, 10 minutos, com material que já existe em casa. Sem culpa nos dias que não der — o plano de 30 dias já prevê isso.\n\n(continue escrevendo cada parte aqui, na íntegra…)",
       },
     };
+
+    /* estágios do board — cada card recebe a barra de progresso (mesma % do modal) via barra(i) */
+    const estagiosDef = [
+      ["0", "Catálogo", "ideias em triagem", "460px", 2, [
+        mkCol("Ideias", "#6E8FFA", "triagem", "ideias", ideias.map(i => ({ ...cardIdeia(i), ...barra(i) }))),
+        mkCol("Prioridade", "#FF8A65", "na fila", "prioridade", by("prioridade").map(i => ({ ...cardPrio(i), ...barra(i) }))),
+      ]],
+      ["1", "Estruturação", "material, copy e criativo", "250px", 1, [
+        mkCol("Em estruturação", "#6E8FFA", "4 itens", "estrut", by("estrut").map(i => ({ ...cardEstrut(i), ...barra(i) }))),
+      ]],
+      ["2", "Produção", "LP e material na bancada", "460px", 2, [
+        mkCol("Em produção", "#FFC78A", "bancada", "prod", by("prod").map(i => ({ ...cardProd(i), ...barra(i) }))),
+        mkCol("No ar", "#3EE0CC", "conferir", "noar", by("noar").map(i => ({ ...cardNoar(i), ...barra(i) }))),
+      ]],
+      ["3", "Completos", "publicados e na fila", "460px", 2, [
+        mkCol("A publicar", "#FFC78A", "fila", "apublicar", by("apublicar").map(i => ({ ...cardFila(i), ...barra(i) }))),
+        mkCol("Publicados", "#3EE0CC", "no bot", "publicados", by("publicados").map(i => ({ ...cardPub(i), ...barra(i) }))),
+      ]],
+    ];
+
+    const estagiosK = estagiosDef.map(([num, nome, desc, minW, flex, cols], ix) => ({
+      num, nome, desc, minW, flex, cols,
+      cor: ESTAGIO_CORES[ix] || "#F4F4F5", corFg: ESTAGIO_FG[ix] || "#0A0A0A",
+      count: cols.reduce((s, c) => s + c.count, 0),
+      hasArrow: ix < estagiosDef.length - 1,
+    }));
 
     const mItem = this.state.modal ? items.find(t => t.id === this.state.modal) : null;
     let md = null, navMeta = {};

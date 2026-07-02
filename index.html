@@ -1,41 +1,1275 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fluxo de Organização</title>
 <script src="./gate.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  html, body { margin: 0; padding: 0; min-height: 100%; background: #0E0E10; }
-  body { font-family: "Geist", "SF Pro Text", system-ui, sans-serif; color: #F4F4F5; -webkit-font-smoothing: antialiased; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-  .wrap { width: min(560px, 92vw); padding: 40px 0; }
-  h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 6px; }
-  .sub { font-family: "Geist Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #6E6E74; margin-bottom: 28px; }
-  a.card { display: flex; align-items: center; gap: 14px; padding: 16px 18px; background: #1A1A1D; border-radius: 14px; margin-bottom: 12px; text-decoration: none; color: inherit; box-shadow: 0 1px 2px rgba(0,0,0,0.5); transition: background .15s; }
-  a.card:hover { background: #232327; }
-  .badge { width: 36px; height: 36px; border-radius: 9999px; background: #F4F4F5; color: #0A0A0A; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex: none; }
-  .t { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
-  .d { font-family: "Geist Mono", ui-monospace, monospace; font-size: 11px; color: #6E6E74; margin-top: 2px; }
+html, body { margin: 0; padding: 0; height: 100%; background: #0E0E10; }
+body { font-family: "Geist", "SF Pro Text", system-ui, sans-serif; color: #F4F4F5; -webkit-font-smoothing: antialiased; }
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
 </style>
-</head>
-<body>
-  <div class="wrap">
-    <h1>Fluxo de Organização</h1>
-    <div class="sub">Teste · máquinas de produto</div>
-    <a class="card" href="./kanban.html">
-      <span class="badge">KB</span>
-      <span><span class="t">Máquina Kanban</span><br><span class="d">Esteira · da ideia ao publicado</span></span>
-    </a>
-    <a class="card" href="./low-ticket-v2.html">
-      <span class="badge">V2</span>
-      <span><span class="t">Máquina de Low Ticket v2</span><br><span class="d">Versão 2</span></span>
-    </a>
-    <a class="card" href="./low-ticket.html">
-      <span class="badge">LT</span>
-      <span><span class="t">Máquina de Low Ticket</span><br><span class="d">Versão original</span></span>
-    </a>
+</helmet>
+
+<div style="position: fixed; inset: 0; box-sizing: border-box; background: #0E0E10; display: flex; flex-direction: column; overflow: hidden;">
+
+  <!-- Top bar -->
+  <div style="display: flex; align-items: center; gap: 16px; padding: 16px 28px 0; flex: none;">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; background: #1A1A1D; border-radius: 9999px; box-shadow: 0 1px 2px rgba(0,0,0,0.5); flex: none;">
+      <span style="width: 28px; height: 28px; border-radius: 9999px; background: #F4F4F5; color: #0A0A0A; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600;">LT</span>
+      <span style="font-size: 13px; font-weight: 600; letter-spacing: -0.01em;">Máquina de Low Ticket</span>
+    </div>
+    <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #6E6E74;">Esteira · da ideia ao publicado</span>
+    <span style="flex: 1;"></span>
+    <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: #A8A8AE;">{{ total }} produtos na máquina</span>
+    <span onClick="{{ abrirLixeira }}" style="width: 34px; height: 34px; border-radius: 9999px; background: #1A1A1D; color: #A8A8AE; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; position: relative; flex: none; transition: background 140ms;" style-hover="background: #222226;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+      <sc-if value="{{ temLixo }}">
+        <span style="position: absolute; top: -2px; right: -2px; width: 9px; height: 9px; border-radius: 9999px; background: #F472B6; border: 2px solid #0E0E10; box-sizing: border-box;"></span>
+      </sc-if>
+    </span>
+    <button onClick="{{ abrirNovo }}" style="display: inline-flex; align-items: center; gap: 6px; border: 0; cursor: pointer; font-family: inherit; font-weight: 500; font-size: 12px; padding: 10px 16px; border-radius: 9999px; background: #F4F4F5; color: #0A0A0A; transition: all 220ms cubic-bezier(0.22,1,0.36,1);" style-hover="transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.55);">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+      Novo produto
+    </button>
   </div>
+
+  <!-- Board -->
+  <div style="flex: 1; min-height: 0; overflow-x: auto; overflow-y: hidden; display: flex; gap: 10px; padding: 18px 28px 24px; box-sizing: border-box;">
+    <sc-for list="{{ estagiosK }}" as="sg" hint-placeholder-count="4">
+
+      <!-- Stage group -->
+      <div style="display: flex; flex-direction: column; flex: none; min-height: 0;">
+        <div style="display: flex; align-items: baseline; gap: 10px; padding: 4px 8px 12px; flex: none;">
+          <span style="width: 22px; height: 22px; border-radius: 7px; background: #F4F4F5; color: #0A0A0A; display: inline-flex; align-items: center; justify-content: center; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; align-self: center; flex: none;">{{ sg.num }}</span>
+          <span style="font-size: 15px; font-weight: 500; letter-spacing: -0.008em;">{{ sg.nome }}</span>
+          <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #6E6E74; font-variant-numeric: tabular-nums;">{{ sg.count }}</span>
+          <span style="flex: 1;"></span>
+          <span style="font-size: 11.5px; color: #6E6E74; white-space: nowrap;">{{ sg.desc }}</span>
+        </div>
+
+        <div style="display: flex; gap: 10px; flex: 1; min-height: 0;">
+          <sc-for list="{{ sg.cols }}" as="col" hint-placeholder-count="2">
+            <div onDragOver="{{ col.dragOver }}" onDrop="{{ col.drop }}" style="width: 264px; flex: none; background: #08080A; border-radius: 18px; padding: 12px; display: flex; flex-direction: column; min-height: 0;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 4px 6px 10px; flex: none;">
+                <span style="width: 8px; height: 8px; border-radius: 9999px; background: {{ col.dot }};"></span>
+                <span style="font-size: 12.5px; font-weight: 500;">{{ col.titulo }}</span>
+                <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #6E6E74; font-variant-numeric: tabular-nums;">{{ col.count }}</span>
+                <span style="flex: 1;"></span>
+                <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 9.5px; color: #3D3D42; text-transform: uppercase; letter-spacing: 0.06em;">{{ col.hint }}</span>
+              </div>
+
+              <div style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 9px; padding-bottom: 2px;">
+                <sc-for list="{{ col.cards }}" as="k" hint-placeholder-count="3">
+                  <div draggable="{{ true }}" onDragStart="{{ k.dragStart }}" onClick="{{ k.abrir }}" style="background: #232327; border-radius: 13px; padding: 12px 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 8px; opacity: {{ k.opacity }}; flex: none; cursor: grab; transition: background 180ms;" style-hover="background: #2A2A2F;">
+                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">
+                      <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 9.5px; letter-spacing: 0.07em; text-transform: uppercase; color: #6E6E74; line-height: 1.5; padding-top: 2px;">{{ k.grupo }}</span>
+                      <sc-if value="{{ k.hasPrazo }}">
+                        <span style="display: inline-flex; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; font-weight: 500; padding: 3px 8px; border-radius: 7px; background: {{ k.prazoBg }}; color: {{ k.prazoFg }}; flex: none; white-space: nowrap;">{{ k.prazo }}</span>
+                      </sc-if>
+                      <sc-if value="{{ k.hasResp }}">
+                        <span style="width: 20px; height: 20px; border-radius: 9999px; background: {{ k.avatarBg }}; color: #0A0A0A; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; flex: none;">{{ k.resp }}</span>
+                      </sc-if>
+                    </div>
+                    <div style="font-size: 13px; font-weight: 500; letter-spacing: -0.005em; line-height: 1.35;">{{ k.nome }}</div>
+                    <sc-if value="{{ k.hasBar }}">
+                      <div style="display: flex; align-items: center; gap: 9px;">
+                        <div style="flex: 1; height: 3.5px; border-radius: 9999px; background: #2A2A2E; overflow: hidden;"><div style="height: 100%; border-radius: 9999px; background: #F4F4F5; width: {{ k.pct }};"></div></div>
+                        <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: #A8A8AE; font-variant-numeric: tabular-nums;">{{ k.chk }}</span>
+                      </div>
+                    </sc-if>
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                      <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: {{ k.infoFg }};">{{ k.info }}</span>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- Arrow between stages -->
+      <sc-if value="{{ sg.hasArrow }}">
+        <div style="display: flex; align-items: center; color: #3D3D42; flex: none; padding-top: 30px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
+        </div>
+      </sc-if>
+
+    </sc-for>
+  </div>
+
+  <!-- ===================== Modal lixeira ===================== -->
+  <sc-if value="{{ lixeiraOpen }}">
+    <div onClick="{{ fecharLixeira }}" style="position: fixed; inset: 0; background: rgba(0,0,0,0.62); z-index: 80;"></div>
+    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(520px, calc(100vw - 40px)); max-height: min(600px, calc(100vh - 48px)); background: #161618; border-radius: 22px; box-shadow: 0 24px 48px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.06); z-index: 90; display: flex; flex-direction: column; overflow: hidden;">
+
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 26px 14px; flex: none;">
+        <div style="display: flex; align-items: baseline; gap: 10px;">
+          <span style="font-size: 18px; font-weight: 500; letter-spacing: -0.012em;">Lixeira</span>
+          <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #6E6E74;">{{ lixoCount }}</span>
+        </div>
+        <span onClick="{{ fecharLixeira }}" style="width: 30px; height: 30px; border-radius: 9999px; background: #26262B; color: #A8A8AE; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: background 140ms;" style-hover="background: #303036;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+        </span>
+      </div>
+
+      <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 0 26px;">
+        <sc-if value="{{ lixeiraVazia }}">
+          <div style="font-size: 12.5px; color: #55555C; padding: 24px 0 28px; text-align: center;">Lixeira vazia — nada por aqui.</div>
+        </sc-if>
+        <sc-for list="{{ lixo }}" as="lx" hint-placeholder-count="2">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #232327;">
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ lx.nome }}</div>
+              <div style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; color: #6E6E74; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em;">{{ lx.grupo }}</div>
+            </div>
+            <span onClick="{{ lx.restaurar }}" style="font-size: 11.5px; font-weight: 500; color: #3EE0CC; cursor: pointer; padding: 6px 10px; border-radius: 9999px; transition: background 140ms; flex: none;" style-hover="background: #143A36;">Restaurar</span>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="padding: 16px 26px 22px; border-top: 1px solid #232327; flex: none;">
+        <sc-if value="{{ semConfirmaEsvaziar }}">
+          <button onClick="{{ pedirEsvaziar }}" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 0; font-family: inherit; font-weight: 500; font-size: 12.5px; padding: 11px 18px; border-radius: 9999px; background: #2A1620; color: #F472B6; opacity: {{ esvaziarOpacity }}; cursor: {{ esvaziarCursor }};">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            Esvaziar lixeira
+          </button>
+        </sc-if>
+        <sc-if value="{{ confirmaEsvaziar }}">
+          <div style="background: #2A1620; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-size: 12.5px; font-weight: 500; color: #F4F4F5;">Excluir tudo de vez? Não dá pra desfazer.</span>
+            <div style="display: flex; gap: 8px;">
+              <button onClick="{{ esvaziarLixeira }}" style="flex: 1; border: 0; cursor: pointer; font-family: inherit; font-weight: 500; font-size: 12px; padding: 9px 12px; border-radius: 9999px; background: #F472B6; color: #0A0A0A;">Sim, esvaziar</button>
+              <button onClick="{{ cancelarEsvaziar }}" style="flex: 1; border: 0; cursor: pointer; font-family: inherit; font-weight: 500; font-size: 12px; padding: 9px 12px; border-radius: 9999px; background: #232327; color: #A8A8AE;">Cancelar</button>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===================== Modal novo produto ===================== -->
+  <sc-if value="{{ novoOpen }}">
+    <div onClick="{{ fecharNovo }}" style="position: fixed; inset: 0; background: rgba(0,0,0,0.62); z-index: 60;"></div>
+    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(560px, calc(100vw - 40px)); background: #161618; border-radius: 22px; box-shadow: 0 24px 48px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.06); z-index: 70; display: flex; flex-direction: column; overflow: hidden;">
+
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 26px 0;">
+        <div style="font-size: 18px; font-weight: 500; letter-spacing: -0.012em;">Novo produto</div>
+        <span onClick="{{ fecharNovo }}" style="width: 30px; height: 30px; border-radius: 9999px; background: #26262B; color: #A8A8AE; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: background 140ms;" style-hover="background: #303036;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+        </span>
+      </div>
+
+      <div style="display: inline-flex; align-self: flex-start; align-items: center; gap: 2px; padding: 4px; background: #0C0C0E; border-radius: 9999px; margin: 16px 26px 0;">
+        <span onClick="{{ novoTabManual }}" style="font-size: 12.5px; font-weight: 500; padding: 7px 14px; border-radius: 9999px; cursor: pointer; color: {{ ntManualFg }}; background: {{ ntManualBg }}; transition: background 140ms;">Anotar ideia</span>
+        <span onClick="{{ novoTabIA }}" style="font-size: 12.5px; font-weight: 500; padding: 7px 14px; border-radius: 9999px; cursor: pointer; color: {{ ntIAFg }}; background: {{ ntIABg }}; transition: background 140ms;">Subir com IA</span>
+      </div>
+
+      <div style="padding: 18px 26px 26px; display: flex; flex-direction: column; gap: 16px;">
+
+        <sc-if value="{{ novoManual }}">
+          <div style="display: flex; flex-direction: column; gap: 7px;">
+            <label style="font-size: 12px; font-weight: 500; color: #A8A8AE;">Título</label>
+            <input value="{{ novoTitulo }}" onChange="{{ onNovoTitulo }}" placeholder="Ex: Pack de legendas prontas pra petshop" style="border: 1px solid #2A2A2E; background: #1E1E22; border-radius: 12px; padding: 11px 14px; font-family: inherit; font-size: 13.5px; color: #F4F4F5; outline: 0;">
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 7px;">
+            <label style="font-size: 12px; font-weight: 500; color: #A8A8AE;">Descrição <span style="color: #55555C; font-weight: 400;">— pra não esquecer a ideia</span></label>
+            <textarea value="{{ novoDesc }}" onChange="{{ onNovoDesc }}" placeholder="Qual a dor, pra quem é, por que compraria…" rows="4" style="border: 1px solid #2A2A2E; background: #1E1E22; border-radius: 12px; padding: 11px 14px; font-family: inherit; font-size: 13px; line-height: 1.5; color: #F4F4F5; outline: 0; resize: vertical;"></textarea>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ novoIA }}">
+          <div style="display: flex; flex-direction: column; gap: 7px;">
+            <label style="font-size: 12px; font-weight: 500; color: #A8A8AE;">Texto aberto ou resultado da IA</label>
+            <textarea value="{{ novoTexto }}" onChange="{{ onNovoTexto }}" placeholder="Cole aqui o texto ou o markdown gerado pela IA — o título vem da primeira linha" rows="7" style="border: 1px solid #2A2A2E; background: #1E1E22; border-radius: 12px; padding: 11px 14px; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; line-height: 1.55; color: #F4F4F5; outline: 0; resize: vertical;"></textarea>
+          </div>
+          <label style="border: 1.5px dashed #3A3A40; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; background: #121214; cursor: pointer;" style-hover="border-color: #6E6E74;">
+            <input type="file" accept=".md,.txt,.markdown,text/plain,text/markdown" onChange="{{ onNovoArquivo }}" style="display: none;">
+            <span style="width: 36px; height: 36px; border-radius: 10px; background: #232327; color: #6E6E74; display: inline-flex; align-items: center; justify-content: center; flex: none;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3"></path><path d="m6 9 6-6 6 6"></path><path d="M5 21h14"></path></svg>
+            </span>
+            <span style="min-width: 0;">
+              <span style="display: block; font-size: 12.5px; font-weight: 500; color: #A8A8AE;">{{ novoArquivoLabel }}</span>
+              <span style="display: block; font-size: 11px; color: #6E6E74; margin-top: 2px;">.md ou .txt — o conteúdo entra no campo acima</span>
+            </span>
+          </label>
+        </sc-if>
+
+        <button onClick="{{ criarNovo }}" style="display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 0; font-family: inherit; font-weight: 500; font-size: 13px; padding: 12px 18px; border-radius: 9999px; background: #F4F4F5; color: #0A0A0A; opacity: {{ criarOpacity }}; cursor: {{ criarCursor }}; transition: all 200ms cubic-bezier(0.22,1,0.36,1);">{{ criarLabel }}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
+        </button>
+        <div style="font-size: 11px; color: #55555C; text-align: center; margin-top: -6px;">Entra na coluna Ideias do catálogo, já com a ficha aberta pra completar</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===================== Modal do produto ===================== -->
+  <sc-if value="{{ modalOpen }}">
+    <div onClick="{{ fecharModal }}" style="position: fixed; inset: 0; background: rgba(0,0,0,0.62); z-index: 40;"></div>
+    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(1080px, calc(100vw - 40px)); height: min(700px, calc(100vh - 44px)); background: #161618; border-radius: 24px; box-shadow: 0 24px 48px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.06); z-index: 50; display: flex; flex-direction: column; overflow: hidden;">
+
+      <!-- Modal header -->
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 24px 28px 18px; background: #1C1C20; border-bottom: 1px solid #26262B; flex: none;">
+        <div style="min-width: 0;">
+          <div style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: #6E6E74; margin-bottom: 6px;">{{ md.trilhaLabel }}</div>
+          <div style="font-size: 21px; font-weight: 500; letter-spacing: -0.014em; line-height: 1.25;">{{ md.nome }}</div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+            <sc-for list="{{ md.chips }}" as="ch" hint-placeholder-count="3">
+              <span style="display: inline-flex; align-items: center; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; font-weight: 500; padding: 4px 10px; border-radius: 8px; background: {{ ch.bg }}; color: {{ ch.fg }}; white-space: nowrap;">{{ ch.label }}</span>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex: none;">
+          <span onClick="{{ fecharModal }}" style="width: 32px; height: 32px; border-radius: 9999px; background: #26262B; color: #A8A8AE; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: background 140ms;" style-hover="background: #303036;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+          </span>
+          <div style="display: flex; align-items: center; gap: 10px; width: 190px;">
+            <div style="flex: 1; height: 5px; border-radius: 9999px; background: #26262B; overflow: hidden;"><div style="height: 100%; border-radius: 9999px; background: {{ md.progCor }}; width: {{ md.progPct }};"></div></div>
+            <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: {{ md.progCor }}; font-variant-numeric: tabular-nums; white-space: nowrap;">{{ md.progLabel }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal body -->
+      <div style="flex: 1; display: flex; min-height: 0;">
+        <!-- Tab rail -->
+        <div style="width: 195px; flex: none; padding: 16px 12px; border-right: 1px solid #232327; display: flex; flex-direction: column; gap: 4px;">
+          <span onClick="{{ nav.govisao }}" style="position: relative; display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 500; padding: 9px 12px; border-radius: 10px; cursor: pointer; color: {{ nav.visaoFg }};">
+            <sc-if value="{{ navVisao }}"><span style="position: absolute; inset: 0; border-radius: 10px; background: #26262B;"></span></sc-if>
+            <span style="position: relative; width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid {{ nav.visaoBoxBorder }}; background: {{ nav.visaoBoxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none;"><sc-if value="{{ nav.visaoDone }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if></span>
+            <span style="position: relative;">Overview</span>
+          </span>
+          <span onClick="{{ nav.gomaterial }}" style="position: relative; display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 500; padding: 9px 12px; border-radius: 10px; cursor: pointer; color: {{ nav.materialFg }};">
+            <sc-if value="{{ navMaterial }}"><span style="position: absolute; inset: 0; border-radius: 10px; background: #26262B;"></span></sc-if>
+            <span style="position: relative; width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid {{ nav.materialBoxBorder }}; background: {{ nav.materialBoxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none;"><sc-if value="{{ nav.materialDone }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if></span>
+            <span style="position: relative;">Material</span>
+          </span>
+          <span onClick="{{ nav.golp }}" style="position: relative; display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 500; padding: 9px 12px; border-radius: 10px; cursor: pointer; color: {{ nav.lpFg }};">
+            <sc-if value="{{ navLp }}"><span style="position: absolute; inset: 0; border-radius: 10px; background: #26262B;"></span></sc-if>
+            <span style="position: relative; width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid {{ nav.lpBoxBorder }}; background: {{ nav.lpBoxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none;"><sc-if value="{{ nav.lpDone }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if></span>
+            <span style="position: relative;">Página de vendas</span>
+          </span>
+          <span onClick="{{ nav.gocriativo }}" style="position: relative; display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 500; padding: 9px 12px; border-radius: 10px; cursor: pointer; color: {{ nav.criativoFg }};">
+            <sc-if value="{{ navCriativo }}"><span style="position: absolute; inset: 0; border-radius: 10px; background: #26262B;"></span></sc-if>
+            <span style="position: relative; width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid {{ nav.criativoBoxBorder }}; background: {{ nav.criativoBoxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none;"><sc-if value="{{ nav.criativoDone }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if></span>
+            <span style="position: relative;">Criativo</span>
+          </span>
+          <span onClick="{{ nav.gopub }}" style="position: relative; display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 500; padding: 9px 12px; border-radius: 10px; cursor: pointer; color: {{ nav.pubFg }};">
+            <sc-if value="{{ navPub }}"><span style="position: absolute; inset: 0; border-radius: 10px; background: #26262B;"></span></sc-if>
+            <span style="position: relative; width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid {{ nav.pubBoxBorder }}; background: {{ nav.pubBoxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none;"><sc-if value="{{ nav.pubDone }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if></span>
+            <span style="position: relative;">Publicação</span>
+          </span>
+          <span style="flex: 1;"></span>
+          <sc-if value="{{ semConfirmaExcluir }}">
+            <span onClick="{{ pedirExcluir }}" style="display: flex; align-items: center; gap: 9px; font-size: 12px; font-weight: 500; padding: 9px 12px; border-radius: 10px; cursor: pointer; color: #F472B6; transition: background 140ms;" style-hover="background: #2A1620;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              Excluir produto
+            </span>
+          </sc-if>
+          <sc-if value="{{ confirmaExcluir }}">
+            <div style="background: #2A1620; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 9px;">
+              <span style="font-size: 12px; font-weight: 500; color: #F4F4F5; line-height: 1.4;">Mover este produto pra lixeira?</span>
+              <div style="display: flex; gap: 6px;">
+                <button onClick="{{ excluirProduto }}" style="flex: 1; border: 0; cursor: pointer; font-family: inherit; font-weight: 500; font-size: 11.5px; padding: 7px 10px; border-radius: 9999px; background: #F472B6; color: #0A0A0A;">Sim, excluir</button>
+                <button onClick="{{ cancelarExcluir }}" style="flex: 1; border: 0; cursor: pointer; font-family: inherit; font-weight: 500; font-size: 11.5px; padding: 7px 10px; border-radius: 9999px; background: #232327; color: #A8A8AE;">Cancelar</button>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <!-- Tab content -->
+        <div style="flex: 1; min-width: 0; overflow-y: auto; padding: 22px 26px 26px; display: flex; flex-direction: column; gap: 18px;">
+
+          <!-- ===== Visão geral ===== -->
+          <sc-if value="{{ tabVisao }}">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <sc-for list="{{ md.campos }}" as="cf" hint-placeholder-count="4">
+                <div style="background: #1E1E22; border-radius: 14px; padding: 14px 16px;">
+                  <div style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; color: #6E6E74;">{{ cf.label }}</div>
+                  <div style="font-size: 13px; line-height: 1.5; margin-top: 6px; color: {{ cf.fg }};">{{ cf.valor }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                <span style="width: 20px; height: 20px; border-radius: 6px; background: #1B2654; color: #6E8FFA; display: inline-flex; align-items: center; justify-content: center; flex: none;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path></svg>
+                </span>
+                <span style="font-size: 13.5px; font-weight: 500;">Público — pra quem esse produto fala</span>
+              </div>
+              <div style="font-size: 11.5px; color: #6E6E74; line-height: 1.5; margin-bottom: 12px;">Base de toda a criação com IA — quanto mais claro, melhor o Claude gera copy, material e criativo falando direto com essa pessoa.</div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <sc-for list="{{ md.publicoCampos }}" as="pf" hint-placeholder-count="6">
+                  <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #6E6E74;">{{ pf.label }}</label>
+                    <textarea value="{{ pf.valor }}" onChange="{{ pf.onChange }}" placeholder="{{ pf.placeholder }}" rows="2" style="border: 1px solid #2A2A2E; background: #121214; border-radius: 10px; padding: 9px 12px; font-family: inherit; font-size: 12.5px; line-height: 1.45; color: #F4F4F5; outline: 0; resize: vertical;"></textarea>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <div style="font-size: 13.5px; font-weight: 500; margin-bottom: 10px;">Na esteira</div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <sc-for list="{{ md.trilha }}" as="tr" hint-placeholder-count="4">
+                  <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 500; padding: 7px 13px; border-radius: 9999px; background: {{ tr.bg }}; color: {{ tr.fg }}; white-space: nowrap;">
+                    <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px;">{{ tr.num }}</span>{{ tr.label }}
+                  </span>
+                  <sc-if value="{{ tr.hasArrow }}"><span style="color: #3D3D42; flex: none;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></span></sc-if>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px;">
+                <span style="font-size: 13.5px; font-weight: 500;">Checklist do produto</span>
+                <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: {{ md.progCor }};">{{ md.progLabel }} · {{ md.progCount }}</span>
+              </div>
+              <sc-for list="{{ md.checklistGrupos }}" as="g" hint-placeholder-count="4">
+                <div style="margin-bottom: 14px;">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+                    <span style="width: 7px; height: 7px; border-radius: 9999px; background: {{ g.dot }};"></span>
+                    <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; color: #8A8A90;">{{ g.titulo }}</span>
+                    <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; color: #55555C;">{{ g.count }}</span>
+                  </div>
+                  <sc-for list="{{ g.itens }}" as="c" hint-placeholder-count="3">
+                    <div onClick="{{ c.toggle }}" style="display: flex; align-items: center; gap: 11px; padding: 9px 0 9px 15px; border-top: 1px solid #232327; cursor: pointer;">
+                      <span style="width: 17px; height: 17px; border-radius: 5px; border: 1.5px solid {{ c.boxBorder }}; background: {{ c.boxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none;">
+                        <sc-if value="{{ c.done }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if>
+                      </span>
+                      <span style="font-size: 13px; color: {{ c.fg }}; flex: 1;">{{ c.label }}</span>
+                      <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: {{ c.stateFg }};">{{ c.state }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <!-- ===== Material ===== -->
+          <sc-if value="{{ tabMaterial }}">
+            <div style="display: inline-flex; align-self: flex-start; align-items: center; gap: 2px; padding: 4px; background: #0C0C0E; border-radius: 9999px;">
+              <span onClick="{{ md.goMatEstrutura }}" style="position: relative; display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 500; padding: 7px 13px; border-radius: 9999px; cursor: pointer; color: {{ md.matEstruturaFg }};">
+                <sc-if value="{{ pillEstrutura }}"><span style="position: absolute; inset: 0; border-radius: 9999px; background: #F4F4F5;"></span></sc-if>
+                <span style="position: relative;">Estrutura</span>
+              </span>
+              <span onClick="{{ md.goMatConteudo }}" style="position: relative; display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 500; padding: 7px 13px; border-radius: 9999px; cursor: pointer; color: {{ md.matConteudoFg }};">
+                <sc-if value="{{ pillConteudo }}"><span style="position: absolute; inset: 0; border-radius: 9999px; background: #F4F4F5;"></span></sc-if>
+                <span style="position: relative;">Conteúdo</span>
+                <sc-if value="{{ md.conteudoDot }}"><span style="position: relative; width: 6px; height: 6px; border-radius: 9999px; background: {{ md.conteudoDotCor }};"></span></sc-if>
+              </span>
+              <span onClick="{{ md.goMatArquivo }}" style="position: relative; display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 500; padding: 7px 13px; border-radius: 9999px; cursor: pointer; color: {{ md.matArquivoFg }};">
+                <sc-if value="{{ pillArquivo }}"><span style="position: absolute; inset: 0; border-radius: 9999px; background: #F4F4F5;"></span></sc-if>
+                <span style="position: relative;">Arquivo</span>
+                <sc-if value="{{ md.arquivoDot }}"><span style="position: relative; width: 6px; height: 6px; border-radius: 9999px; background: {{ md.arquivoDotCor }};"></span></sc-if>
+              </span>
+            </div>
+
+            <!-- Material · Estrutura -->
+            <sc-if value="{{ matEstrutura }}">
+              <div style="background: #1E1E22; border-radius: 14px; padding: 14px 16px; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                <span style="font-size: 13px; font-weight: 500;">Dimensionamento</span>
+                <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #3EE0CC;">{{ md.tier }}</span>
+              </div>
+              <div>
+                <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px;">
+                  <span style="font-size: 13.5px; font-weight: 500;">Estrutura do material</span>
+                  <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #A8A8AE;">{{ md.estruturaCount }}</span>
+                </div>
+                <sc-for list="{{ md.estrutura }}" as="es" hint-placeholder-count="7">
+                  <div style="display: flex; align-items: center; gap: 11px; padding: 9px 0; border-top: 1px solid #232327;">
+                    <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: #6E6E74; width: 22px; flex: none; font-variant-numeric: tabular-nums;">{{ es.n }}</span>
+                    <span style="font-size: 13px; color: {{ es.fg }}; flex: 1; line-height: 1.4;">{{ es.label }}</span>
+                    <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; color: #55555C;">{{ es.meta }}</span>
+                    <span style="width: 8px; height: 8px; border-radius: 9999px; background: {{ es.dot }}; flex: none;"></span>
+                  </div>
+                </sc-for>
+              </div>
+              <div>
+                <div style="font-size: 13.5px; font-weight: 500; margin-bottom: 10px;">Todo capítulo precisa ter</div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                  <sc-for list="{{ md.chkCapitulo }}" as="cc" hint-placeholder-count="5">
+                    <span style="font-size: 11.5px; font-weight: 500; padding: 6px 12px; border-radius: 9999px; background: #232327; color: #A8A8AE; box-shadow: inset 0 0 0 1px #2E2E33;">{{ cc.label }}</span>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="background: #0C0C0E; border-radius: 14px; padding: 16px 18px;">
+                <div style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; color: #6E6E74; margin-bottom: 10px;">Referência visual</div>
+                <sc-for list="{{ md.buscas }}" as="bs" hint-placeholder-count="2">
+                  <div style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11.5px; color: #6E8FFA; padding: 4px 0;">{{ bs.q }}</div>
+                </sc-for>
+                <div style="font-size: 11.5px; color: #6E6E74; margin-top: 8px;">Prints de exemplos reais &gt; imagem genérica de banco — gera mais confiança.</div>
+              </div>
+            </sc-if>
+
+            <!-- Material · Conteúdo na íntegra -->
+            <sc-if value="{{ matConteudo }}">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                <span style="font-size: 13.5px; font-weight: 500;">Conteúdo na íntegra</span>
+                <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: {{ md.conteudoContagemFg }};">{{ md.conteudoContagem }}</span>
+              </div>
+              <div style="font-size: 12px; color: #6E6E74; margin-top: -8px; line-height: 1.5;">Cole ou escreva o material completo em texto corrido — fica salvo com o produto e vira base pra diagramar o arquivo final.</div>
+              <textarea value="{{ md.conteudo }}" onChange="{{ md.onConteudo }}" placeholder="Escreva aqui o material completo, parte por parte…" rows="14" style="border: 1px solid #2A2A2E; background: #121214; border-radius: 14px; padding: 15px 16px; font-family: inherit; font-size: 13px; line-height: 1.6; color: #F4F4F5; outline: 0; resize: vertical; width: 100%; box-sizing: border-box;"></textarea>
+            </sc-if>
+
+            <!-- Material · Arquivo pronto -->
+            <sc-if value="{{ matArquivo }}">
+              <div style="font-size: 13.5px; font-weight: 500;">Arquivo pronto</div>
+              <div style="font-size: 12px; color: #6E6E74; margin-top: -8px; line-height: 1.5;">Armazene o material finalizado (PDF, ZIP, planilha…) pronto pra entrega no bot.</div>
+              <sc-if value="{{ md.arquivoOk }}">
+                <div style="border: 1.5px solid #2A2A2E; border-radius: 14px; padding: 16px; display: flex; align-items: center; gap: 12px; background: #1A1A1D;">
+                  <span style="width: 40px; height: 40px; border-radius: 10px; background: #143A36; color: #3EE0CC; display: inline-flex; align-items: center; justify-content: center; flex: none;">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg>
+                  </span>
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: #F4F4F5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ md.arquivoNome }}</div>
+                    <div style="font-size: 11px; color: #6E6E74; margin-top: 3px;">armazenado · pronto pra entrega</div>
+                  </div>
+                  <span onClick="{{ md.removerArquivo }}" style="font-size: 11.5px; font-weight: 500; color: #F472B6; cursor: pointer; padding: 6px 10px; border-radius: 9999px; flex: none; transition: background 140ms;" style-hover="background: #2A1620;">Remover</span>
+                </div>
+              </sc-if>
+              <sc-if value="{{ md.arquivoPend }}">
+                <label style="border: 1.5px dashed #3A3A40; border-radius: 14px; padding: 22px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; background: #121214; cursor: pointer; text-align: center;" style-hover="border-color: #6E6E74;">
+                  <input type="file" onChange="{{ md.onArquivo }}" style="display: none;">
+                  <span style="width: 42px; height: 42px; border-radius: 12px; background: #232327; color: #6E6E74; display: inline-flex; align-items: center; justify-content: center;">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3"></path><path d="m6 9 6-6 6 6"></path><path d="M5 21h14"></path></svg>
+                  </span>
+                  <span style="font-size: 12.5px; font-weight: 500; color: #A8A8AE;">Arraste o arquivo ou clique pra enviar</span>
+                  <span style="font-size: 11px; color: #6E6E74;">PDF, ZIP, planilha — qualquer formato de entrega</span>
+                </label>
+              </sc-if>
+            </sc-if>
+          </sc-if>
+
+          <!-- ===== Página de vendas ===== -->
+          <sc-if value="{{ tabLP }}">
+            <div>
+              <div style="font-size: 13.5px; font-weight: 500; margin-bottom: 4px;">Link da landing page</div>
+              <div style="font-size: 12px; color: #6E6E74; margin-bottom: 10px; line-height: 1.5;">A LP é gerada inteira e publicada como one page — cole o link aqui pra armazenar e ver o preview.</div>
+              <div style="display: flex; align-items: center; gap: 8px; border: 1px solid #2A2A2E; background: #121214; border-radius: 12px; padding: 4px 4px 4px 14px;">
+                <span style="color: #6E6E74; flex: none;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"></path><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"></path></svg></span>
+                <input value="{{ md.lpLink }}" onChange="{{ md.onLpLink }}" placeholder="https://..." style="border: 0; background: transparent; outline: 0; flex: 1; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12.5px; color: #F4F4F5; min-width: 0;">
+                <sc-if value="{{ md.lpTemLink }}">
+                  <a href="{{ md.lpHref }}" target="_blank" style="text-decoration: none; display: inline-flex; align-items: center; gap: 5px; font-family: inherit; font-weight: 500; font-size: 11.5px; padding: 8px 13px; border-radius: 9999px; background: #232327; color: #A8A8AE; flex: none;">Abrir
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"></path><path d="M8 7h9v9"></path></svg>
+                  </a>
+                </sc-if>
+              </div>
+            </div>
+            <sc-if value="{{ md.lpTemLink }}">
+              <div style="border: 1px solid #2A2A2E; border-radius: 16px; overflow: hidden; background: #1A1A1D;">
+                <div style="display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid #232327; background: #1E1E22;">
+                  <span style="width: 9px; height: 9px; border-radius: 9999px; background: #F472B6;"></span>
+                  <span style="width: 9px; height: 9px; border-radius: 9999px; background: #FFC78A;"></span>
+                  <span style="width: 9px; height: 9px; border-radius: 9999px; background: #3EE0CC;"></span>
+                  <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #6E6E74; margin-left: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ md.lpLink }}</span>
+                </div>
+                <iframe src="{{ md.lpHref }}" style="width: 100%; height: 420px; border: 0; background: #FFFFFF; display: block;"></iframe>
+              </div>
+            </sc-if>
+            <sc-if value="{{ md.lpSemLink }}">
+              <div style="border: 1.5px dashed #3A3A40; border-radius: 16px; padding: 34px 18px; display: flex; flex-direction: column; align-items: center; gap: 8px; background: #121214; text-align: center;">
+                <span style="width: 42px; height: 42px; border-radius: 12px; background: #232327; color: #6E6E74; display: inline-flex; align-items: center; justify-content: center;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8"></path><path d="M12 17v4"></path></svg>
+                </span>
+                <span style="font-size: 12.5px; font-weight: 500; color: #A8A8AE;">Cole o link acima pra ver o preview da página</span>
+              </div>
+            </sc-if>
+            <div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px;">
+                <span style="font-size: 13.5px; font-weight: 500;">Estrutura ideal da página</span>
+                <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; color: #6E6E74;">nossos estudos · edite à vontade</span>
+              </div>
+              <sc-for list="{{ md.lpEstrutura }}" as="ls" hint-placeholder-count="8">
+                <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid #232327;">
+                  <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: #6E6E74; width: 18px; flex: none; font-variant-numeric: tabular-nums;">{{ ls.n }}</span>
+                  <span style="font-size: 12.5px; color: #F4F4F5; flex: 1; line-height: 1.4;">{{ ls.label }}</span>
+                  <span onClick="{{ ls.remover }}" style="color: #55555C; cursor: pointer; flex: none; display: inline-flex; transition: color 140ms;" style-hover="color: #F472B6;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></span>
+                </div>
+              </sc-for>
+              <div style="display: flex; align-items: center; gap: 8px; border-top: 1px solid #232327; padding-top: 10px; margin-top: 2px;">
+                <input value="{{ md.newStep }}" onChange="{{ md.onNewStep }}" placeholder="Adicionar etapa…" style="flex: 1; border: 1px solid #2A2A2E; background: #121214; border-radius: 9px; padding: 8px 12px; font-family: inherit; font-size: 12.5px; color: #F4F4F5; outline: 0; min-width: 0;">
+                <button onClick="{{ md.addStep }}" style="border: 0; cursor: pointer; font-family: inherit; font-weight: 500; font-size: 12px; padding: 9px 14px; border-radius: 9px; background: #232327; color: #F4F4F5; flex: none;">Adicionar</button>
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px;">
+                <span style="font-size: 13.5px; font-weight: 500;">Ideias de headlines</span>
+                <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; color: #FFC78A;">clique pra riscar as descartadas</span>
+              </div>
+              <sc-for list="{{ md.lpHeadlines }}" as="hl" hint-placeholder-count="4">
+                <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid #232327;">
+                  <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: #6E6E74; width: 18px; flex: none; font-variant-numeric: tabular-nums;">{{ hl.n }}</span>
+                  <span onClick="{{ hl.riscar }}" style="font-size: 12.5px; color: {{ hl.fg }}; flex: 1; line-height: 1.45; cursor: pointer; text-decoration: {{ hl.deco }};">{{ hl.texto }}</span>
+                  <span onClick="{{ hl.remover }}" style="color: #55555C; cursor: pointer; flex: none; display: inline-flex; transition: color 140ms;" style-hover="color: #F472B6;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></span>
+                </div>
+              </sc-for>
+              <div style="display: flex; align-items: center; gap: 8px; border-top: 1px solid #232327; padding-top: 10px; margin-top: 2px;">
+                <input value="{{ md.newHeadline }}" onChange="{{ md.onNewHeadline }}" placeholder="Adicionar ideia de headline…" style="flex: 1; border: 1px solid #2A2A2E; background: #121214; border-radius: 9px; padding: 8px 12px; font-family: inherit; font-size: 12.5px; color: #F4F4F5; outline: 0; min-width: 0;">
+                <button onClick="{{ md.addHeadline }}" style="border: 0; cursor: pointer; font-family: inherit; font-weight: 500; font-size: 12px; padding: 9px 14px; border-radius: 9px; background: #232327; color: #F4F4F5; flex: none;">Adicionar</button>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- ===== Criativo ===== -->
+          <sc-if value="{{ tabCriativo }}">
+            <div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px;">
+                <span style="font-size: 13.5px; font-weight: 500;">Criativos do anúncio</span>
+                <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: #6E6E74;">pode subir mais de um</span>
+              </div>
+              <sc-for list="{{ md.criativosList }}" as="cr" hint-placeholder-count="2">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 11px 14px; border: 1px solid #2A2A2E; border-radius: 12px; background: #1A1A1D; margin-bottom: 8px;">
+                  <span style="width: 34px; height: 34px; border-radius: 9px; background: #143A36; color: #3EE0CC; display: inline-flex; align-items: center; justify-content: center; flex: none;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"></path></svg>
+                  </span>
+                  <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: #F4F4F5; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ cr.nome }}</span>
+                  <span onClick="{{ cr.remover }}" style="font-size: 11.5px; font-weight: 500; color: #F472B6; cursor: pointer; flex: none; padding: 5px 9px; border-radius: 9999px; transition: background 140ms;" style-hover="background: #2A1620;">Remover</span>
+                </div>
+              </sc-for>
+              <label style="border: 1.5px dashed #3A3A40; border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px; background: #121214; cursor: pointer;" style-hover="border-color: #6E6E74;">
+                <input type="file" multiple="{{ true }}" onChange="{{ md.onCriativoUpload }}" style="display: none;">
+                <span style="width: 34px; height: 34px; border-radius: 9px; background: #232327; color: #6E6E74; display: inline-flex; align-items: center; justify-content: center; flex: none;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3"></path><path d="m6 9 6-6 6 6"></path><path d="M5 21h14"></path></svg>
+                </span>
+                <span style="font-size: 12.5px; font-weight: 500; color: #A8A8AE;">Arraste os criativos ou clique — imagem, carrossel ou vídeo</span>
+              </label>
+            </div>
+
+            <div>
+              <div style="font-size: 13.5px; font-weight: 500; margin-bottom: 4px;">Orientações do criativo</div>
+              <div style="font-size: 11.5px; color: #6E6E74; line-height: 1.5; margin-bottom: 10px;">Mesmas headlines da página e o nome do produto — mantenha a consistência da promessa em todo lugar.</div>
+              <div style="background: #0C0C0E; border-radius: 12px; padding: 13px 16px; margin-bottom: 10px;">
+                <div style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #6E6E74; margin-bottom: 8px;">Nome do produto</div>
+                <div style="font-size: 12.5px; color: #F4F4F5; margin-bottom: 12px;">{{ md.critNome }}</div>
+                <div style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #6E6E74; margin-bottom: 6px;">Headlines (as mesmas da página)</div>
+                <sc-for list="{{ md.critHeadlines }}" as="ch" hint-placeholder-count="3">
+                  <div style="display: flex; align-items: baseline; gap: 9px; padding: 4px 0;">
+                    <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; color: #6E6E74; width: 16px; flex: none;">{{ ch.n }}</span>
+                    <span style="font-size: 12.5px; color: #D4D4D8; line-height: 1.4;">{{ ch.texto }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 7px; margin-bottom: 10px;">
+                <label style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #6E6E74;">Frases de apoio</label>
+                <textarea value="{{ md.critApoio }}" onChange="{{ md.onCritApoio }}" placeholder="Reforços curtos: prova, urgência, bônus, garantia…" rows="2" style="border: 1px solid #2A2A2E; background: #121214; border-radius: 10px; padding: 10px 12px; font-family: inherit; font-size: 12.5px; line-height: 1.5; color: #F4F4F5; outline: 0; resize: vertical;"></textarea>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 7px;">
+                <label style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #6E6E74;">Legenda dos criativos</label>
+                <textarea value="{{ md.critLegenda }}" onChange="{{ md.onCritLegenda }}" placeholder="Texto que acompanha o post/anúncio…" rows="3" style="border: 1px solid #2A2A2E; background: #121214; border-radius: 10px; padding: 10px 12px; font-family: inherit; font-size: 12.5px; line-height: 1.5; color: #F4F4F5; outline: 0; resize: vertical;"></textarea>
+              </div>
+            </div>
+
+            <div>
+              <div style="font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">Recomendação por formato</div>
+              <div style="display: inline-flex; align-items: center; gap: 2px; padding: 4px; background: #0C0C0E; border-radius: 9999px; margin-bottom: 10px;">
+                <span onClick="{{ md.goCritCarrossel }}" style="position: relative; font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 9999px; cursor: pointer; color: {{ md.critCarrosselFg }};">
+                  <sc-if value="{{ critCarrossel }}"><span style="position: absolute; inset: 0; border-radius: 9999px; background: #F4F4F5;"></span></sc-if>
+                  <span style="position: relative;">Carrossel</span>
+                </span>
+                <span onClick="{{ md.goCritVideo }}" style="position: relative; font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 9999px; cursor: pointer; color: {{ md.critVideoFg }};">
+                  <sc-if value="{{ critVideo }}"><span style="position: absolute; inset: 0; border-radius: 9999px; background: #F4F4F5;"></span></sc-if>
+                  <span style="position: relative;">Vídeo</span>
+                </span>
+                <span onClick="{{ md.goCritImagem }}" style="position: relative; font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 9999px; cursor: pointer; color: {{ md.critImagemFg }};">
+                  <sc-if value="{{ critImagem }}"><span style="position: absolute; inset: 0; border-radius: 9999px; background: #F4F4F5;"></span></sc-if>
+                  <span style="position: relative;">Imagem única</span>
+                </span>
+              </div>
+              <div style="background: #0C0C0E; border-radius: 12px; padding: 14px 16px; font-size: 12.5px; color: #D4D4D8; line-height: 1.6;">{{ md.critRecTexto }}</div>
+            </div>
+          </sc-if>
+
+          <!-- ===== Publicação ===== -->
+          <sc-if value="{{ tabPub }}">
+            <div style="font-size: 11.5px; color: #6E6E74; line-height: 1.5; margin-bottom: -4px;">Última etapa da estruturação — ajuste os detalhes, feche o que falta e conclua pra publicar.</div>
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 12px;">
+              <div style="display: flex; flex-direction: column; gap: 7px;">
+                <label style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #6E6E74;">Preço</label>
+                <input value="{{ md.preco }}" onChange="{{ md.onPreco }}" placeholder="R$ 0" style="border: 1px solid #2A2A2E; background: #121214; border-radius: 10px; padding: 10px 13px; font-family: inherit; font-size: 13.5px; font-weight: 500; color: #3EE0CC; outline: 0;">
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 7px;">
+                <label style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #6E6E74;">Link do checkout</label>
+                <input value="{{ md.checkout }}" onChange="{{ md.onCheckout }}" placeholder="https://checkout..." style="border: 1px solid #2A2A2E; background: #121214; border-radius: 10px; padding: 10px 13px; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12.5px; color: #F4F4F5; outline: 0;">
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px;">
+                <span style="font-size: 13.5px; font-weight: 500;">O que falta pra entregar</span>
+                <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: {{ md.progCor }};">{{ md.progCount }}</span>
+              </div>
+              <sc-if value="{{ md.semFaltas }}">
+                <div style="display: flex; align-items: center; gap: 10px; padding: 12px 0; border-top: 1px solid #232327; color: #3EE0CC;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg>
+                  <span style="font-size: 13px;">Tudo pronto — pode publicar.</span>
+                </div>
+              </sc-if>
+              <sc-for list="{{ md.faltando }}" as="ft" hint-placeholder-count="3">
+                <div style="display: flex; align-items: center; gap: 11px; padding: 9px 0; border-top: 1px solid #232327;">
+                  <span style="width: 15px; height: 15px; border-radius: 5px; border: 1.5px solid #3A3A40; flex: none;"></span>
+                  <span style="font-size: 13px; color: #A8A8AE; flex: 1;">{{ ft.label }}</span>
+                  <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; color: #FFC78A;">pendente</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="background: #0C0C0E; border-radius: 14px; padding: 16px 18px; display: flex; align-items: center; gap: 14px;">
+              <div style="flex: 1;">
+                <div style="font-size: 13px; font-weight: 500; color: {{ md.pubEstadoFg }};">{{ md.pubEstado }}</div>
+                <div style="font-size: 11.5px; color: #6E6E74; margin-top: 3px;">{{ md.pubEstadoHint }}</div>
+              </div>
+              <button onClick="{{ md.concluirPublicacao }}" style="border: 0; font-family: inherit; font-weight: 500; font-size: 13px; padding: 12px 20px; border-radius: 9999px; background: #3EE0CC; color: #06120F; flex: none; opacity: {{ md.pubBtnOpacity }}; cursor: {{ md.pubBtnCursor }}; display: inline-flex; align-items: center; gap: 7px;">{{ md.pubBtnLabel }}
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg>
+              </button>
+            </div>
+          </sc-if>
+
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;alertaPrazoDias&quot;: { &quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 5, &quot;min&quot;: 1, &quot;max&quot;: 21, &quot;unit&quot;: &quot;dias&quot;, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Prazos&quot;, &quot;description&quot;: &quot;Prazos a essa distância ficam âmbar&quot; },
+  &quot;mostrarDescartadas&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Catálogo&quot;, &quot;description&quot;: &quot;Exibir ideias descartadas na coluna de triagem&quot; }
+}">
+class Component extends DCLogic {
+  state = {
+    modal: null, modalTab: "visao",
+    novo: false, novoTab: "manual", novoTitulo: "", novoDesc: "", novoTexto: "", novoArquivo: "", nextId: 100,
+    lixeira: false, confirmaExcluir: false, confirmaEsvaziar: false,
+    matTab: "estrutura", docs: {}, critTab: "carrossel", newStep: "", newHeadline: "",
+    items: [
+      // catálogo · ideias (etiquetas catalogo/estudar/descartado)
+      { id: 6,  col: "ideias", nome: "Ebook de precificação pra freelancer", grupo: "Nível 2 · com estruturação", nivel: "N2", tag: "catalogo" },
+      { id: 7,  col: "ideias", nome: "Kit de identidade DIY pra confeitaria", grupo: "Nível 2 · com estruturação", nivel: "N2", tag: "catalogo" },
+      { id: 8,  col: "ideias", nome: "Micro app de precificação com IA", grupo: "Nível 3 · ferramenta", nivel: "N3", tag: "catalogo" },
+      { id: 9,  col: "ideias", nome: "Mockups de embalagem e planner", grupo: "Nível 1 · muito rápido", nivel: "N1", tag: "catalogo" },
+      { id: 10, col: "ideias", nome: "GPT customizado revisor de contrato", grupo: "Nível 3 · ferramenta", nivel: "N3", tag: "catalogo" },
+      { id: 11, col: "ideias", nome: "Cronograma de estudos pro ENEM", grupo: "Nível 2 · com estruturação", nivel: "N2", tag: "catalogo" },
+      { id: 12, col: "ideias", nome: "Ebook peixes em caixa d'água", grupo: "Renda extra · hobby", nivel: "N2", tag: "estudar" },
+      { id: 13, col: "ideias", nome: "Atividades por idade (0 a 3 anos)", grupo: "Apelo família e bebê", nivel: "N2", tag: "estudar" },
+      { id: 14, col: "ideias", nome: "Minicurso de IA no design", grupo: "Nível 4 · trabalhoso", nivel: "N4", tag: "estudar" },
+      { id: 15, col: "ideias", nome: "Checklist de enxoval de bebê", grupo: "Checklists · pessoas", nivel: "N1", tag: "estudar" },
+      { id: 16, col: "ideias", nome: "Guia de recolocação e entrevista", grupo: "Dores do dia a dia", nivel: "N2", tag: "descartado" },
+      // catálogo · prioridade
+      { id: 1, col: "prioridade", nome: "Packs de prompts de IA por nicho", grupo: "Nível 1 · muito rápido", nivel: "N1" },
+      { id: 2, col: "prioridade", nome: "Como automatizar venda no WhatsApp", grupo: "Produto-âncora", nivel: "N3" },
+      { id: 3, col: "prioridade", nome: "Templates de Canva por nicho", grupo: "Nível 1 · muito rápido", nivel: "N1" },
+      { id: 4, col: "prioridade", nome: "Checklist de abertura de MEI", grupo: "Checklists · empresas", nivel: "N1" },
+      { id: 5, col: "prioridade", nome: "Planilha + posts pra lash designer", grupo: "Nichos de empresários", nivel: "N2" },
+      // estruturação
+      { id: 21, col: "estrut", nome: "Pack de prompts de IA para professores", grupo: "Pack · low ticket R$ 27", chk: [2, 3], prazo: 6 },
+      { id: 22, col: "estrut", nome: "Checklist de abertura de MEI", grupo: "Checklist · low ticket R$ 17", chk: [1, 3], prazo: 9 },
+      { id: 23, col: "estrut", nome: "Curso: R$ 10 mil/mês cuidando de empresas no digital", grupo: "Curso completo · low ticket R$ 47", chk: [1, 3], prazo: 21 },
+      // produção
+      { id: 31, col: "prod", nome: "Como automatizar venda no WhatsApp", grupo: "Landing page", chk: [4, 5], prazo: -1, resp: "R", nota: "v3 em teste A/B" },
+      { id: 32, col: "prod", nome: "Templates de Canva pra confeitaria", grupo: "Landing page", chk: [3, 5], prazo: 2, resp: "J", nota: "aguardando criativo" },
+      { id: 33, col: "prod", nome: "Kit lash designer: planilha + posts", grupo: "Material", chk: [2, 5], prazo: 12, resp: "M", nota: "planilha em montagem" },
+      // no ar (produção concluída, aguardando conferência)
+      { id: 41, col: "noar", nome: "Como automatizar venda no WhatsApp", grupo: "Material", resp: "R", nota: "hospedado e entregando" },
+      { id: 42, col: "noar", nome: "Kit lash designer: planilha + posts", grupo: "Landing page", resp: "M", nota: "1ª seção em 1.9s" },
+      // completos
+      { id: 51, col: "apublicar", nome: "Presets de cor pra reels", grupo: "Pack · R$ 37", nota: "aguardando slot de tráfego" },
+      { id: 52, col: "apublicar", nome: "Cronograma de estudos pro ENEM", grupo: "PDF · R$ 22", nota: "fila #2" },
+      { id: 61, col: "publicados", nome: "Ebook de precificação pra freelancer", grupo: "PDF · R$ 19", nota: "no ar desde 12 jun" },
+      { id: 62, col: "publicados", nome: "Pack de mockups de embalagem", grupo: "ZIP · R$ 27", nota: "no ar desde 3 jun" },
+      { id: 63, col: "publicados", nome: "Checklist de enxoval de bebê", grupo: "PDF · R$ 17", nota: "no ar desde 28 mai" },
+    ],
+  };
+
+  mover(id, col, extra) {
+    this.setState({ items: this.state.items.map(x => x.id === id ? { ...x, col, ...(extra || {}) } : x) });
+  }
+
+  renderVals() {
+    const alertaDias = this.props.alertaPrazoDias ?? 5;
+    const mostrarDescartadas = this.props.mostrarDescartadas ?? true;
+    const nivelFg = (n) => n === "N1" ? "#3EE0CC" : n === "N4" ? "#FF8A65" : "#6E6E74";
+    const tagFg = { catalogo: "#3EE0CC", estudar: "#6E8FFA", descartado: "#6E6E74" };
+    const avatars = { R: "#FF8A65", J: "#A78BFA", M: "#6E8FFA" };
+
+    const prazoInfo = (dias) => {
+      const label = dias < 0 ? `atrasado ${-dias}d` : dias === 0 ? "vence hoje" : `vence em ${dias}d`;
+      if (dias < 0) return { label, fg: "#F472B6", bg: "#43182E" };
+      if (dias <= alertaDias) return { label, fg: "#FFC78A", bg: "#432D18" };
+      return { label, fg: "#3EE0CC", bg: "#143A36" };
+    };
+
+    const base = { opacity: 1, hasPrazo: false, hasResp: false, hasBar: false, info: "", infoFg: "#6E6E74" };
+    const items = this.state.items;
+    const by = (c) => items.filter(x => x.col === c);
+    const drag = (i) => (e) => {
+      this._dragId = i.id;
+      if (e && e.dataTransfer) { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", String(i.id)); }
+    };
+    const open = (i) => () => this.setState({ modal: i.id, modalTab: "visao", matTab: "estrutura", confirmaExcluir: false });
+
+    const cardIdeia = (i) => ({
+      ...base, nome: i.nome, grupo: i.grupo, dragStart: drag(i), abrir: open(i),
+      opacity: i.tag === "descartado" ? 0.55 : 1,
+      info: i.tag === "descartado" ? "descartada" : "nível " + (i.nivel || "N2").slice(1) + " · " + (i.tag === "estudar" ? "estudar" : "catálogo"),
+      infoFg: i.tag === "descartado" ? "#6E6E74" : tagFg[i.tag],
+    });
+
+    const cardPrio = (i) => ({
+      ...base, nome: i.nome, grupo: i.grupo, dragStart: drag(i), abrir: open(i),
+      info: "nível " + (i.nivel || "N2").slice(1), infoFg: nivelFg(i.nivel || "N2"),
+    });
+
+    const cardEstrut = (i) => {
+      const chk = i.chk || [0, 3];
+      const pi = prazoInfo(i.prazo ?? 14);
+      const pronto = chk[0] >= chk[1];
+      return {
+        ...base, nome: i.nome, grupo: i.grupo, dragStart: drag(i), abrir: open(i),
+        hasPrazo: true, prazo: pi.label, prazoBg: pi.bg, prazoFg: pi.fg,
+        hasBar: true, pct: Math.round(chk[0] / chk[1] * 100) + "%", chk: chk[0] + "/" + chk[1],
+        info: pronto ? "checklist fechado" : "material · copy · criativo",
+        infoFg: pronto ? "#3EE0CC" : "#6E6E74",
+      };
+    };
+
+    const cardProd = (i) => {
+      const chk = i.chk || [0, 5];
+      const pi = prazoInfo(i.prazo ?? 7);
+      return {
+        ...base, nome: i.nome, grupo: i.grupo, dragStart: drag(i), abrir: open(i),
+        hasPrazo: true, prazo: pi.label, prazoBg: pi.bg, prazoFg: pi.fg,
+        hasBar: true, pct: Math.round(chk[0] / chk[1] * 100) + "%", chk: chk[0] + "/" + chk[1],
+        info: i.nota || "na bancada", infoFg: "#6E6E74",
+      };
+    };
+
+    const cardNoar = (i) => ({
+      ...base, nome: i.nome, grupo: i.grupo, dragStart: drag(i), abrir: open(i),
+      hasResp: true, resp: i.resp || "R", avatarBg: avatars[i.resp || "R"],
+      info: i.nota || "no ar", infoFg: "#3EE0CC",
+    });
+
+    const cardFila = (i) => ({
+      ...base, nome: i.nome, grupo: i.grupo, dragStart: drag(i), abrir: open(i),
+      info: i.nota || "na fila", infoFg: "#FFC78A",
+    });
+
+    const cardPub = (i) => ({
+      ...base, nome: i.nome, grupo: i.grupo, dragStart: drag(i), abrir: open(i),
+      info: (i.nota || "no ar") + " · rodando", infoFg: "#3EE0CC",
+    });
+
+    const ideias = by("ideias").filter(i => mostrarDescartadas || i.tag !== "descartado");
+
+    const dropExtras = {
+      ideias: (x) => ({ tag: x.tag || "catalogo", nivel: x.nivel || "N2" }),
+      prioridade: (x) => ({ nivel: x.nivel || "N2" }),
+      estrut: (x) => ({ chk: x.chk && x.chk[1] === 3 ? x.chk : [0, 3], prazo: x.prazo ?? 14 }),
+      prod: (x) => ({ chk: [x.chk ? Math.min(x.chk[0], 5) : 0, 5], prazo: x.prazo ?? 7, resp: x.resp || "R", nota: x.col === "noar" ? x.nota : "entrou na bancada" }),
+      noar: (x) => ({ resp: x.resp || "R", nota: "publicado agora" }),
+      apublicar: () => ({ nota: "entrou na fila" }),
+      publicados: () => ({ nota: "no ar agora" }),
+    };
+    const mkCol = (titulo, dot, hint, key, cards) => ({
+      titulo, dot, hint, cards, count: cards.length,
+      dragOver: (e) => { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = "move"; },
+      drop: (e) => {
+        e.preventDefault();
+        const x = this.state.items.find(t => t.id === this._dragId);
+        if (!x || x.col === key) return;
+        this.mover(x.id, key, dropExtras[key](x));
+      },
+    });
+
+    const estagiosDef = [
+      ["0", "Catálogo", "ideias em triagem", "460px", 2, [
+        mkCol("Ideias", "#6E8FFA", "triagem", "ideias", ideias.map(cardIdeia)),
+        mkCol("Prioridade", "#FF8A65", "na fila", "prioridade", by("prioridade").map(cardPrio)),
+      ]],
+      ["1", "Estruturação", "material, copy e criativo", "250px", 1, [
+        mkCol("Em estruturação", "#6E8FFA", "3 itens", "estrut", by("estrut").map(cardEstrut)),
+      ]],
+      ["2", "Produção", "LP e material na bancada", "460px", 2, [
+        mkCol("Em produção", "#FFC78A", "bancada", "prod", by("prod").map(cardProd)),
+        mkCol("No ar", "#3EE0CC", "conferir", "noar", by("noar").map(cardNoar)),
+      ]],
+      ["3", "Completos", "publicados e na fila", "460px", 2, [
+        mkCol("A publicar", "#FFC78A", "fila", "apublicar", by("apublicar").map(cardFila)),
+        mkCol("Publicados", "#3EE0CC", "no bot", "publicados", by("publicados").map(cardPub)),
+      ]],
+    ];
+
+    const estagiosK = estagiosDef.map(([num, nome, desc, minW, flex, cols], ix) => ({
+      num, nome, desc, minW, flex, cols,
+      count: cols.reduce((s, c) => s + c.count, 0),
+      hasArrow: ix < estagiosDef.length - 1,
+    }));
+
+    /* ---------- modal do produto ---------- */
+    const pad2 = (x) => String(x).padStart(2, "0");
+    const colLabel = { ideias: "Catálogo · triagem", prioridade: "Catálogo · prioridade", estrut: "Estruturação", prod: "Produção · bancada", noar: "Produção · no ar", apublicar: "Completos · a publicar", publicados: "Completos · publicado" };
+    const stageIdxMap = { ideias: 0, prioridade: 0, estrut: 1, prod: 2, noar: 2, apublicar: 3, publicados: 3 };
+    const chkB = (done) => ({ boxBorder: done ? "#F4F4F5" : "#3A3A40", boxBg: done ? "#F4F4F5" : "transparent", fg: done ? "#F4F4F5" : "#A8A8AE", stateFg: done ? "#3EE0CC" : "#FF8A65" });
+
+    const DET = {
+      21: { publico: "Professores do fundamental que perdem noites montando plano de aula", promessa: "Monte um mês de planos de aula em uma tarde" },
+      22: { publico: "Quem quer formalizar o negócio e trava na burocracia do portal", promessa: "Abra seu MEI em 1 dia, sem medo de errar" },
+      31: { publico: "Pequenos negócios que vendem pelo WhatsApp no braço", promessa: "Automatize a venda no WhatsApp sem contratar ninguém" },
+      23: {
+        publico: "Iniciantes com noção de design/redes sociais que querem transformar isso em renda",
+        dor: "Sabe usar Canva e Instagram, mas não sabe como transformar isso em cliente pagante e renda de verdade",
+        desejo: "Fechar os primeiros clientes e chegar a R$ 10 mil/mês com gestão de redes, sem depender de patrão",
+        objecoes: "\"preciso ser influencer\", \"não tenho curso de marketing\", \"meu portfólio é pequeno\", \"tá caro\"",
+        canais: "Grupos de freela e social media, comunidades de empreendedorismo, Instagram de design",
+        tom: "Direto e realista (não hype), encorajador, com exemplos concretos e passo a passo",
+        promessa: "Como faturar R$ 10 mil/mês cuidando das redes sociais de pequenas empresas (mesmo começando do zero)",
+        tier: "Robusto · 10 partes + anexos · 80-100 pág.",
+        estrutura: [
+          ["Abertura — capa, sumário, boas-vindas, como usar", "4-6 pág.", true],
+          ["Por que social media é porta de entrada pra R$ 10k/mês", "8-10 pág.", true],
+          ["Sua oferta: o que você vai vender exatamente", "8-10 pág.", false],
+          ["Posicionamento e portfólio sem ter cliente ainda", "8-10 pág.", false],
+          ["Prospecção: como conseguir os primeiros clientes", "8-10 pág.", false],
+          ["Fluxo de trabalho: gerenciando redes de verdade", "8-10 pág.", false],
+          ["Criação de conteúdo que performa", "8-10 pág.", false],
+          ["Ferramentas do dia a dia (design, agendamento, IA)", "6-8 pág.", false],
+          ["Relacionamento com cliente e retenção", "6-8 pág.", false],
+          ["Escalando além dos R$ 10 mil/mês", "6-8 pág.", false],
+          ["Plano de ação 30/60/90 dias", "4-6 pág.", false],
+          ["Anexos — proposta, script, planilha, glossário", "extra", false],
+        ],
+        headlines: [
+          ["Como faturar R$ 10 mil/mês cuidando das redes de pequenas empresas (mesmo começando do zero)", true],
+          ["O método pra virar gestor de redes sociais e fechar clientes em 30 dias", false],
+          ["De zero a R$ 10.000/mês sem ser especialista em marketing", true],
+          ["Pare de postar de graça: transforme redes sociais em renda de R$ 10 mil/mês", false],
+          ["Empresas pagam até R$ 2 mil/mês só pra alguém cuidar do Instagram — seja essa pessoa", false],
+          ["Você não precisa de faculdade de marketing pra faturar R$ 10 mil/mês", true],
+          ["5 clientes, R$ 2 mil cada: o caminho real até R$ 10.000/mês", false],
+        ],
+        buscas: [
+          { q: 'pinterest · "feed instagram antes depois estética [nicho]"' },
+          { q: 'pinterest · "moodboard cores [nicho]"' },
+        ],
+        conteudo: "PARTE 1 — Por que gestão de redes sociais é uma porta de entrada realista pra R$ 10k/mês\n\nO mercado de pequenas empresas sem ninguém cuidando das redes é gigante. O dono não tem tempo, não sabe o que postar e muitas vezes tem vergonha do próprio feed. É aí que você entra.\n\nA conta que fecha R$ 10.000: 5 clientes a R$ 2.000, ou 10 a R$ 1.000. Não precisa ser influencer, nem ter curso de marketing, nem portfólio grande — precisa de método.\n\n(continue escrevendo cada parte aqui, na íntegra…)",
+      },
+    };
+
+    const mItem = this.state.modal ? items.find(t => t.id === this.state.modal) : null;
+    let md = null, navMeta = {};
+    const mTab = this.state.modalTab;
+    if (mItem) {
+      const d = DET[mItem.id] || {};
+      const sIdx = stageIdxMap[mItem.col];
+      const precoM = /R\$ ?[\d.,]+ ?(mil)?/.exec(mItem.grupo || "");
+      const preco = d.preco || (precoM ? precoM[0].trim() : "a definir");
+      const doneFor = (ix) => sIdx >= 2 ? true : sIdx === 1 ? ix < 2 : false;
+
+      /* chips do header */
+      const chips = [{ label: colLabel[mItem.col], bg: "#232327", fg: "#A8A8AE" }];
+      if (mItem.col === "estrut" || mItem.col === "prod") {
+        const pi = prazoInfo(mItem.prazo ?? 14);
+        chips.push({ label: pi.label, bg: pi.bg, fg: pi.fg });
+      }
+      chips.push({ label: preco, bg: "#143A36", fg: "#3EE0CC" });
+      if (mItem.nivel) chips.push({ label: "nível " + mItem.nivel.slice(1), bg: "#232327", fg: nivelFg(mItem.nivel) });
+
+      /* visão geral */
+      const campos = [
+        { label: "Público que atinge", valor: d.publico || mItem.desc || "Definir na estruturação — quem é e qual dor resolve", fg: (d.publico || mItem.desc) ? "#F4F4F5" : "#6E6E74" },
+        { label: "Promessa central (headline)", valor: d.promessa || "Escolher no banco de headlines — aba Página de vendas", fg: d.promessa ? "#F4F4F5" : "#6E6E74" },
+        { label: "Formato · preço", valor: mItem.grupo, fg: "#F4F4F5" },
+        { label: "Dimensionamento", valor: d.tier || "Enxuto · 4-5 partes · 20-30 pág.", fg: "#F4F4F5" },
+      ];
+      const trilhaDefs = ["Catálogo", "Estruturação", "Produção", "Completos"];
+      const trilha = trilhaDefs.map((label, ix) => ({
+        num: ix, label, hasArrow: ix < 3,
+        bg: ix === sIdx ? "#F4F4F5" : ix < sIdx ? "#143A36" : "#232327",
+        fg: ix === sIdx ? "#0A0A0A" : ix < sIdx ? "#3EE0CC" : "#6E6E74",
+      }));
+
+      const chkDefs = {
+        ideias: [["Dor clara e público com verba", true], ["Nível de esforço definido", true], ["Etiqueta de triagem aplicada", mItem.tag !== undefined]],
+        prioridade: [["Dor clara e público com verba", true], ["Nível de esforço definido", true], ["Na fila pra estruturar", true]],
+        estrut: [["Material pronto e subido", 0], ["Copy da landing page escrita", 1], ["Criativo pronto e subido", 2]],
+        prod: [["Material do produto", 0], ["Copy da landing page", 1], ["Criativo do anúncio", 2], ["Landing page no ar", 3], ["Domínio + checkout testados", 4]],
+        noar: [["Material do produto", true], ["Copy da landing page", true], ["Criativo do anúncio", true], ["Landing page no ar", true], ["Domínio + checkout testados", true]],
+        apublicar: [["Produto completo e conferido", true], ["Preço definido", true], ["Slot na fila de lançamento", false]],
+        publicados: [["Produto completo e conferido", true], ["Preço definido", true], ["Publicado no bot", true]],
+      };
+      const chkList = (chkDefs[mItem.col] || []).map(([label, flag]) => {
+        const done = typeof flag === "number" ? (mItem.chk ? flag < mItem.chk[0] : false) : !!flag;
+        return { label, done, state: done ? "ok" : "pendente", ...chkB(done) };
+      });
+
+      /* material */
+      const estruturaRaw = d.estrutura || [
+        ["Capa — título + promessa central (mesma headline da LP)", "1 pág."],
+        ["Sumário — vende o valor logo de cara", "1 pág."],
+        ["Boas-vindas + autoridade — quem ensina e por quê", "1-2 pág."],
+        ["Corpo — do fundamento ao avançado, sempre progressivo", "por tier"],
+        ["Plano de ação final — checklist 30/60/90 dias", "2-3 pág."],
+        ["Anexos — templates, scripts, planilhas, glossário", "extra"],
+      ];
+      const estrutura = estruturaRaw.map((r, ix) => {
+        const done = r.length > 2 ? r[2] : doneFor(ix);
+        return { n: pad2(ix + 1), label: r[0], meta: r[1], fg: done ? "#F4F4F5" : "#A8A8AE", dot: done ? "#3EE0CC" : "#3A3A40" };
+      });
+      const estruturaDone = estrutura.filter(e => e.dot === "#3EE0CC").length;
+
+      /* material · conteúdo + arquivo (editável, salvo por produto) */
+      const doc = this.state.docs[mItem.id] || {};
+      const setDoc = (patch) => this.setState({ docs: { ...this.state.docs, [mItem.id]: { ...(this.state.docs[mItem.id] || {}), ...patch } } });
+      const conteudo = doc.conteudo ?? (d.conteudo || "");
+      const palavras = conteudo.trim() ? conteudo.trim().split(/\s+/).length : 0;
+      const arquivoNome = doc.arquivo ?? (mItem.arquivoMaterial || "");
+      const onArquivoMat = (e) => { const f = e.target.files && e.target.files[0]; if (f) setDoc({ arquivo: f.name }); };
+      const matTab = this.state.matTab;
+      const pillBg = (id) => matTab === id ? "#F4F4F5" : "transparent";
+      const pillFg = (id) => matTab === id ? "#0A0A0A" : "#A8A8AE";
+
+      /* página de vendas */
+      const headlinesRaw = d.headlines || [
+        ["Como [resultado] em [tempo]", true],
+        ["Como [resultado] mesmo sem [objeção mais comum]", true],
+        ["Pare de [erro comum]: [alternativa que você ensina]", true],
+        ["Como [público] está conseguindo [resultado] com [método]", false],
+        ["O Método [nome] para [resultado]", false],
+      ];
+      const headlines = headlinesRaw.map((r, ix) => ({ n: pad2(ix + 1), texto: r[0], marcada: r[1], fg: r[1] ? "#F4F4F5" : "#A8A8AE" }));
+
+      const lpLink = doc.lpLink ?? (mItem.lpLink || "");
+      const lpHref = /^https?:\/\//i.test(lpLink) ? lpLink : (lpLink ? "https://" + lpLink : "");
+
+      const qualidadeDefs = sIdx >= 3
+        ? [["LP testada com 3-4 variações", true, "v1 → v3"], ["Velocidade medida", true, "1ª seção < 2.4s"], ["Sem script de terceiro", true, "ok"]]
+        : sIdx === 2
+        ? [["LP testada com 3-4 variações", true, "v1 → v3"], ["Velocidade medida", true, "1ª seção 2.1s"], ["Sem script de terceiro", false, "pixel externo"]]
+        : [["LP testada com 3-4 variações", false, "pendente"], ["Velocidade medida", false, "GTmetrix · < 2.4s"], ["Sem script de terceiro", false, "pendente"]];
+      const qualidadeLP = qualidadeDefs.map(([label, done, state]) => ({ label, done, state, ...chkB(done) }));
+
+      /* criativo */
+      const crState = (ix) => sIdx >= 3 ? "aprovado" : sIdx === 2 ? (ix === 0 ? "aprovado" : ix === 1 ? "em teste" : "pendente") : sIdx === 1 ? (ix === 0 ? "rascunho" : "pendente") : "pendente";
+      const criativos = ["Variação A — headline vencedora", "Variação B — ângulo contraintuitivo", "Variação C — quebra de objeção"].map((label, ix) => {
+        const st = crState(ix);
+        const cor = st === "aprovado" ? "#3EE0CC" : st === "pendente" ? "#55555C" : "#FFC78A";
+        return { label, state: st, stateFg: cor, dot: cor, fg: st === "pendente" ? "#A8A8AE" : "#F4F4F5" };
+      });
+
+      /* publicação */
+      const pubStatusInfo = mItem.col === "publicados"
+        ? { s: (mItem.nota || "no ar") + " · rodando no bot", cor: "#3EE0CC" }
+        : mItem.col === "apublicar"
+        ? { s: "pronto — aguardando slot na fila de lançamento", cor: "#FFC78A" }
+        : { s: "publicação libera quando LP e material estiverem no ar", cor: "#6E6E74" };
+      const pubCampos = [
+        { label: "Canal", valor: "Bot no WhatsApp", fg: "#F4F4F5" },
+        { label: "Preço", valor: preco, fg: "#3EE0CC" },
+        { label: "Status", valor: mItem.col === "publicados" || mItem.col === "apublicar" ? (mItem.nota || "—") : "libera após produção", fg: "#F4F4F5" },
+      ];
+      const pubDefs = sIdx >= 3
+        ? [["Landing page no ar", true], ["Material hospedado e entregando", true], ["Criativo aprovado", true], ["Preço conferido no checkout", mItem.col === "publicados"]]
+        : [["Landing page no ar", sIdx === 2 && mItem.col === "noar"], ["Material hospedado e entregando", mItem.col === "noar"], ["Criativo aprovado", false], ["Preço conferido no checkout", false]];
+      const pubChecklist = pubDefs.map(([label, done]) => ({ label, done, state: done ? "ok" : "pendente", ...chkB(done) }));
+
+      /* público (editável, base pra geração com IA) */
+      const pubData = {
+        quem: doc.pubQuem ?? (d.publico || mItem.desc || ""),
+        dor: doc.pubDor ?? (d.dor || ""),
+        desejo: doc.pubDesejo ?? (d.desejo || ""),
+        objecoes: doc.pubObjecoes ?? (d.objecoes || ""),
+        canais: doc.pubCanais ?? (d.canais || ""),
+        tom: doc.pubTom ?? (d.tom || ""),
+      };
+      const publicoCampos = [
+        ["quem", "Quem é (persona)", "Ex: professora do fundamental, 28-45, sobrecarregada, usa celular", "pubQuem"],
+        ["dor", "Dor principal", "O que tira o sono dessa pessoa hoje", "pubDor"],
+        ["desejo", "Desejo / transformação", "Onde ela quer chegar — o depois", "pubDesejo"],
+        ["objecoes", "Objeções comuns", "\"tá caro\", \"não tenho tempo\", \"não sei se funciona\"…", "pubObjecoes"],
+        ["canais", "Onde encontrar", "Grupos, redes, comunidades onde ela está", "pubCanais"],
+        ["tom", "Tom de voz pra falar com ela", "Ex: direto, acolhedor, sem jargão técnico", "pubTom"],
+      ].map(([k, label, placeholder, key]) => ({
+        label, placeholder, valor: pubData[k],
+        onChange: (e) => setDoc({ [key]: e.target.value }),
+      }));
+
+      /* checklist mestre do produto (todo o processo) */
+      const checkOv = doc.check || {};
+      const setCheck = (key, val) => this.setState({ docs: { ...this.state.docs, [mItem.id]: { ...(this.state.docs[mItem.id] || {}), check: { ...checkOv, [key]: val } } } });
+      const emProdPlus = ["noar", "apublicar", "publicados"].includes(mItem.col);
+      const autoDone = {
+        pub_quem: pubData.quem.trim().length > 0,
+        pub_dor: pubData.dor.trim().length > 0 || !!d.promessa,
+        est_conteudo: palavras > 0,
+        est_material: !!arquivoNome,
+        est_lp: !!lpHref,
+        est_criativo: sIdx >= 3,
+        prod_teste: sIdx >= 2,
+        prod_veloc: sIdx >= 2,
+        prod_hosp: emProdPlus,
+        pub_preco: !!preco && preco !== "a definir",
+        pub_bot: mItem.col === "publicados",
+      };
+      const grpDefs = [
+        ["Público", "#6E8FFA", [["pub_quem", "Público definido"], ["pub_dor", "Dor e promessa claras"]]],
+        ["Estruturação", "#FFC78A", [["est_conteudo", "Conteúdo escrito"], ["est_material", "Material pronto e subido"], ["est_lp", "Página de vendas no ar"], ["est_criativo", "Criativo pronto"]]],
+        ["Produção", "#3EE0CC", [["prod_teste", "LP testada (3-4 variações)"], ["prod_veloc", "Velocidade medida"], ["prod_hosp", "Material hospedado"]]],
+        ["Publicação", "#A78BFA", [["pub_preco", "Preço definido"], ["pub_bot", "Publicado no bot"]]],
+      ];
+      let totItens = 0, doneItens = 0;
+      const checklistGrupos = grpDefs.map(([titulo, dot, defs]) => {
+        const itens = defs.map(([key, label]) => {
+          const done = checkOv[key] ?? autoDone[key];
+          totItens++; if (done) doneItens++;
+          return { label, done, state: done ? "ok" : "pendente", ...chkB(done), toggle: () => setCheck(key, !done) };
+        });
+        const gd = itens.filter(i => i.done).length;
+        return { titulo, dot, itens, count: gd + "/" + itens.length };
+      });
+      const progPctNum = Math.round(doneItens / totItens * 100);
+      const progCor = progPctNum === 100 ? "#3EE0CC" : progPctNum >= 50 ? "#FFC78A" : "#8A8A90";
+
+      const gerarComIA = () => this.setState({ modalTab: "material", matTab: "conteudo" });
+
+      /* ---- Página de vendas: estrutura editável + headlines editáveis ---- */
+      const lpEstruturaDefault = ["Alerta de urgência no topo", "Headline — a promessa central", "Sub-headline de reforço", "Vídeo ou imagem leve", "Bloco emocional — dor e desejo", "Bloco lógico — o que é e como funciona", "Bloco racional — oferta, ancoragem, CTA", "FAQ + reafirmação + CTA final"];
+      const lpEstruturaArr = doc.lpEstrutura ?? lpEstruturaDefault;
+      const lpEstrutura = lpEstruturaArr.map((label, ix) => ({
+        n: pad2(ix + 1), label,
+        remover: () => setDoc({ lpEstrutura: lpEstruturaArr.filter((_, j) => j !== ix) }),
+      }));
+      const addStep = () => {
+        const v = this.state.newStep.trim(); if (!v) return;
+        setDoc({ lpEstrutura: [...lpEstruturaArr, v] }); this.setState({ newStep: "" });
+      };
+      const headlinesDefault = d.headlines ? d.headlines.map(h => h[0]) : ["Como [resultado] em [tempo]", "Como [resultado] mesmo sem [objeção comum]", "Pare de [erro comum]: [alternativa]"];
+      const lpHeadlinesArr = doc.lpHeadlines ?? headlinesDefault.map(t => ({ texto: t, riscada: false }));
+      const lpHeadlines = lpHeadlinesArr.map((h, ix) => ({
+        n: pad2(ix + 1), texto: h.texto, riscada: h.riscada,
+        deco: h.riscada ? "line-through" : "none",
+        fg: h.riscada ? "#55555C" : "#F4F4F5",
+        riscar: () => setDoc({ lpHeadlines: lpHeadlinesArr.map((x, j) => j === ix ? { ...x, riscada: !x.riscada } : x) }),
+        remover: () => setDoc({ lpHeadlines: lpHeadlinesArr.filter((_, j) => j !== ix) }),
+      }));
+      const addHeadline = () => {
+        const v = this.state.newHeadline.trim(); if (!v) return;
+        setDoc({ lpHeadlines: [...lpHeadlinesArr, { texto: v, riscada: false }] }); this.setState({ newHeadline: "" });
+      };
+
+      /* ---- Criativo: múltiplos uploads + orientações + recomendação por formato ---- */
+      const criativosArr = doc.criativos ?? [];
+      const criativosList = criativosArr.map((c, ix) => ({
+        nome: c.nome, tipo: c.tipo || "arquivo",
+        remover: () => setDoc({ criativos: criativosArr.filter((_, j) => j !== ix) }),
+      }));
+      const onCriativoUpload = (e) => {
+        const fs = [...(e.target.files || [])].map(f => ({ nome: f.name }));
+        if (fs.length) setDoc({ criativos: [...criativosArr, ...fs] });
+      };
+      const critHeadlinesTexto = lpHeadlinesArr.filter(h => !h.riscada).map(h => h.texto);
+      const critApoio = doc.critApoio ?? (d.critApoio || "");
+      const critLegenda = doc.critLegenda ?? (d.critLegenda || "");
+      const critFormatoRecs = {
+        carrossel: "3-5 cards. Card 1 = headline (a mesma da LP). Cards do meio = dor → prova → como funciona, um por card. Último card = CTA claro (\"arrasta pra cima / chama no link\").",
+        video: "Gancho nos 3 primeiros segundos (a headline falada). Depois: dor → transformação → prova rápida → CTA. Legendado, vertical 9:16, até 30-45s.",
+        imagem: "Uma imagem, uma ideia. Headline grande e legível no mobile, contraste alto, pouca gente lê texto pequeno. Deixe o CTA na legenda.",
+      };
+      const critTab = this.state.critTab;
+      const critFormatoTabs = [["carrossel", "Carrossel"], ["video", "Vídeo"], ["imagem", "Imagem única"]].map(([id, label]) => ({
+        id, label, ativo: critTab === id,
+        fg: critTab === id ? "#0A0A0A" : "#A8A8AE",
+        go: () => this.setState({ critTab: id }),
+      }));
+
+      /* ---- Publicação editável ---- */
+      const precoAtual = doc.preco ?? preco;
+      const checkoutLink = doc.checkout ?? (mItem.checkout || "");
+      const publicado = doc.publicado ?? (mItem.col === "publicados");
+      const faltando = checklistGrupos.flatMap(g => g.itens.filter(i => !i.done).map(i => i.label));
+      const podePublicar = faltando.length === 0;
+      const concluirPublicacao = () => {
+        setDoc({ publicado: true });
+        this.setState({ items: this.state.items.map(x => x.id === mItem.id ? { ...x, col: "publicados", nota: "no ar agora" } : x) });
+      };
+
+      md = {
+        nome: mItem.nome, trilhaLabel: colLabel[mItem.col], chips, campos, trilha,
+        checklistGrupos, publicoCampos, gerarComIA,
+        progPct: progPctNum + "%", progLabel: progPctNum + "%", progCor, progCount: doneItens + "/" + totItens,
+        tier: d.tier || "Enxuto · 4-5 partes · 20-30 pág.",
+        estrutura, estruturaCount: estruturaDone + "/" + estrutura.length,
+        chkCapitulo: ["Texto direto, sem enrolação", "Visual de exemplo", "Link de referência", "Tarefa do capítulo", "Resumo em 2-3 linhas"].map(label => ({ label })),
+        buscas: d.buscas || [{ q: 'pinterest · "referência visual [nicho] estética"' }, { q: 'pinterest · "moodboard cores [nicho]"' }],
+        matEstruturaFg: pillFg("estrutura"), matEstruturaBg: pillBg("estrutura"), goMatEstrutura: () => this.setState({ matTab: "estrutura" }),
+        matConteudoFg: pillFg("conteudo"), matConteudoBg: pillBg("conteudo"), goMatConteudo: () => this.setState({ matTab: "conteudo" }),
+        matArquivoFg: pillFg("arquivo"), matArquivoBg: pillBg("arquivo"), goMatArquivo: () => this.setState({ matTab: "arquivo" }),
+        conteudoDot: palavras > 0, arquivoDot: !!arquivoNome,
+        conteudoDotCor: matTab === "conteudo" ? "#0A7C6C" : "#3EE0CC",
+        arquivoDotCor: matTab === "arquivo" ? "#0A7C6C" : "#3EE0CC",
+        conteudo, onConteudo: (e) => setDoc({ conteudo: e.target.value }),
+        conteudoContagem: palavras > 0 ? palavras + " palavras" : "vazio",
+        conteudoContagemFg: palavras > 0 ? "#3EE0CC" : "#55555C",
+        arquivoOk: !!arquivoNome, arquivoPend: !arquivoNome, arquivoNome,
+        onArquivo: onArquivoMat, removerArquivo: () => setDoc({ arquivo: "" }),
+        lpLink, lpHref, lpTemLink: !!lpHref, lpSemLink: !lpHref,
+        onLpLink: (e) => setDoc({ lpLink: e.target.value }),
+        lpEstrutura, addStep, newStep: this.state.newStep, onNewStep: (e) => this.setState({ newStep: e.target.value }),
+        lpHeadlines, addHeadline, newHeadline: this.state.newHeadline, onNewHeadline: (e) => this.setState({ newHeadline: e.target.value }),
+        critNome: mItem.nome,
+        critHeadlines: critHeadlinesTexto.map((t, i) => ({ n: pad2(i + 1), texto: t })),
+        critApoio, onCritApoio: (e) => setDoc({ critApoio: e.target.value }),
+        critLegenda, onCritLegenda: (e) => setDoc({ critLegenda: e.target.value }),
+        criativosList, temCriativo: criativosList.length > 0, onCriativoUpload,
+        critRecTexto: critFormatoRecs[critTab],
+        goCritCarrossel: () => this.setState({ critTab: "carrossel" }),
+        goCritVideo: () => this.setState({ critTab: "video" }),
+        goCritImagem: () => this.setState({ critTab: "imagem" }),
+        critCarrosselFg: critTab === "carrossel" ? "#0A0A0A" : "#A8A8AE",
+        critVideoFg: critTab === "video" ? "#0A0A0A" : "#A8A8AE",
+        critImagemFg: critTab === "imagem" ? "#0A0A0A" : "#A8A8AE",
+        preco: precoAtual, onPreco: (e) => setDoc({ preco: e.target.value }),
+        checkout: checkoutLink, onCheckout: (e) => setDoc({ checkout: e.target.value }),
+        publicado, faltando: faltando.map(f => ({ label: f })), semFaltas: faltando.length === 0,
+        podePublicar, concluirPublicacao,
+        pubBtnLabel: publicado ? "Publicado" : "Concluir e publicar",
+        pubBtnOpacity: publicado ? 0.5 : (podePublicar ? 1 : 0.4),
+        pubBtnCursor: (!publicado && podePublicar) ? "pointer" : "default",
+        pubEstado: publicado ? "Publicado — rodando no bot" : podePublicar ? "Pronto pra publicar" : "Ainda faltam itens",
+        pubEstadoFg: publicado ? "#3EE0CC" : podePublicar ? "#F4F4F5" : "#FFC78A",
+        pubEstadoHint: publicado ? "O produto está no estágio Completos do kanban" : podePublicar ? "Ao concluir, ele vai pra Completos no kanban" : "Feche os itens acima pra liberar a publicação",
+      };
+
+      const tabDone = {
+        visao: pubData.quem.trim().length > 0,
+        material: !!arquivoNome,
+        lp: !!lpHref,
+        criativo: criativosArr.length > 0,
+        pub: publicado,
+      };
+      const navIds = [["visao", "Overview"], ["material", "Material"], ["lp", "Página de vendas"], ["criativo", "Criativo"], ["pub", "Publicação"]];
+      navMeta = {};
+      navIds.forEach(([id]) => {
+        navMeta[id + "Fg"] = mTab === id ? "#F4F4F5" : "#A8A8AE";
+        navMeta[id + "Done"] = tabDone[id];
+        navMeta[id + "BoxBorder"] = tabDone[id] ? "#3EE0CC" : "#3A3A40";
+        navMeta[id + "BoxBg"] = tabDone[id] ? "#3EE0CC" : "transparent";
+        navMeta["go" + id] = () => this.setState({ modalTab: id });
+      });
+    }
+
+    /* ---------- lixeira ---------- */
+    const lixo = items.filter(x => x.col === "lixeira");
+    const lixoView = lixo.map(x => ({
+      nome: x.nome, grupo: x.grupo,
+      restaurar: () => this.setState({ items: this.state.items.map(t => t.id === x.id ? { ...t, col: t.prevCol || "ideias" } : t) }),
+    }));
+
+    /* ---------- novo produto ---------- */
+    const nTab = this.state.novoTab;
+    const podeCriar = nTab === "manual" ? this.state.novoTitulo.trim().length > 0 : this.state.novoTexto.trim().length > 0;
+    const criarNovo = () => {
+      if (!podeCriar) return;
+      let nome, desc, grupo;
+      if (nTab === "manual") {
+        nome = this.state.novoTitulo.trim();
+        desc = this.state.novoDesc.trim();
+        grupo = "Anotação · triagem";
+      } else {
+        const linhas = this.state.novoTexto.split("\n").map(l => l.trim()).filter(Boolean);
+        nome = (linhas[0] || "Produto importado").replace(/^#+\s*/, "").replace(/\*\*/g, "").slice(0, 80);
+        desc = linhas.slice(1).join(" ").replace(/[#*>`]/g, "").slice(0, 240);
+        grupo = "Importado · IA";
+      }
+      const id = this.state.nextId;
+      this.setState({
+        items: [{ id, col: "ideias", nome, grupo, tag: "catalogo", nivel: "N2", desc }, ...this.state.items],
+        nextId: id + 1,
+        novo: false, novoTitulo: "", novoDesc: "", novoTexto: "", novoArquivo: "",
+        modal: id, modalTab: "visao",
+      });
+    };
+    const onNovoArquivo = (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = () => this.setState({ novoTexto: String(reader.result || ""), novoArquivo: f.name });
+      reader.readAsText(f);
+    };
+
+    return {
+      novoOpen: this.state.novo,
+      abrirNovo: () => this.setState({ novo: true, novoTab: "manual" }),
+      fecharNovo: () => this.setState({ novo: false }),
+      novoTabManual: () => this.setState({ novoTab: "manual" }),
+      novoTabIA: () => this.setState({ novoTab: "ia" }),
+      novoManual: nTab === "manual", novoIA: nTab === "ia",
+      ntManualFg: nTab === "manual" ? "#0A0A0A" : "#A8A8AE", ntManualBg: nTab === "manual" ? "#F4F4F5" : "transparent",
+      ntIAFg: nTab === "ia" ? "#0A0A0A" : "#A8A8AE", ntIABg: nTab === "ia" ? "#F4F4F5" : "transparent",
+      novoTitulo: this.state.novoTitulo, onNovoTitulo: (e) => this.setState({ novoTitulo: e.target.value }),
+      novoDesc: this.state.novoDesc, onNovoDesc: (e) => this.setState({ novoDesc: e.target.value }),
+      novoTexto: this.state.novoTexto, onNovoTexto: (e) => this.setState({ novoTexto: e.target.value }),
+      novoArquivoLabel: this.state.novoArquivo || "Ou arraste um arquivo aqui",
+      onNovoArquivo, criarNovo,
+      criarLabel: nTab === "manual" ? "Guardar no catálogo" : "Processar e criar card",
+      criarOpacity: podeCriar ? 1 : 0.35,
+      criarCursor: podeCriar ? "pointer" : "default",
+      estagiosK,
+      total: items.filter(x => x.col !== "lixeira" && !(x.col === "ideias" && x.tag === "descartado")).length,
+      /* lixeira */
+      temLixo: lixo.length > 0, lixoCount: lixo.length, lixo: lixoView, lixeiraVazia: lixo.length === 0,
+      lixeiraOpen: this.state.lixeira,
+      abrirLixeira: () => this.setState({ lixeira: true, confirmaEsvaziar: false }),
+      fecharLixeira: () => this.setState({ lixeira: false, confirmaEsvaziar: false }),
+      semConfirmaEsvaziar: !this.state.confirmaEsvaziar, confirmaEsvaziar: this.state.confirmaEsvaziar,
+      pedirEsvaziar: () => { if (lixo.length) this.setState({ confirmaEsvaziar: true }); },
+      cancelarEsvaziar: () => this.setState({ confirmaEsvaziar: false }),
+      esvaziarLixeira: () => this.setState({ items: items.filter(x => x.col !== "lixeira"), confirmaEsvaziar: false }),
+      esvaziarOpacity: lixo.length ? 1 : 0.35, esvaziarCursor: lixo.length ? "pointer" : "default",
+      /* excluir produto (no modal) */
+      semConfirmaExcluir: !this.state.confirmaExcluir, confirmaExcluir: this.state.confirmaExcluir,
+      pedirExcluir: () => this.setState({ confirmaExcluir: true }),
+      cancelarExcluir: () => this.setState({ confirmaExcluir: false }),
+      excluirProduto: () => this.setState({
+        items: items.map(x => x.id === this.state.modal ? { ...x, prevCol: x.col, col: "lixeira" } : x),
+        modal: null, confirmaExcluir: false,
+      }),
+      legenda: [
+        { label: "no prazo", cor: "#3EE0CC" },
+        { label: `vence em até ${alertaDias}d`, cor: "#FFC78A" },
+        { label: "atrasado", cor: "#F472B6" },
+      ],
+      modalOpen: !!md, md, nav: navMeta,
+      navVisao: !!md && mTab === "visao",
+      navMaterial: !!md && mTab === "material",
+      navLp: !!md && mTab === "lp",
+      navCriativo: !!md && mTab === "criativo",
+      navPub: !!md && mTab === "pub",
+      tabVisao: !!md && mTab === "visao",
+      critCarrossel: !!md && mTab === "criativo" && this.state.critTab === "carrossel",
+      critVideo: !!md && mTab === "criativo" && this.state.critTab === "video",
+      critImagem: !!md && mTab === "criativo" && this.state.critTab === "imagem",
+      tabMaterial: !!md && mTab === "material",
+      matEstrutura: !!md && mTab === "material" && this.state.matTab === "estrutura",
+      matConteudo: !!md && mTab === "material" && this.state.matTab === "conteudo",
+      matArquivo: !!md && mTab === "material" && this.state.matTab === "arquivo",
+      pillEstrutura: !!md && mTab === "material" && this.state.matTab === "estrutura",
+      pillConteudo: !!md && mTab === "material" && this.state.matTab === "conteudo",
+      pillArquivo: !!md && mTab === "material" && this.state.matTab === "arquivo",
+      tabLP: !!md && mTab === "lp",
+      tabCriativo: !!md && mTab === "criativo",
+      tabPub: !!md && mTab === "pub",
+      fecharModal: () => this.setState({ modal: null }),
+    };
+  }
+}
+</script>
 </body>
 </html>

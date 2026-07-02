@@ -729,14 +729,8 @@ const DATA_VERSION = 2;
 const ESTAGIO_CORES = ["#8A8A90", "#5C5CB5", "#2E2EDA", "#0000FF"];
 const ESTAGIO_FG = ["#0A0A0A", "#F4F4F5", "#F4F4F5", "#FFFFFF"];
 
-/* Faixa à esquerda do card: cor estável por grupo (mesmo grupo = mesma cor em qualquer coluna) */
-const GRUPO_CORES = ["#3EE0CC", "#6E8FFA", "#A78BFA", "#FF8A65", "#FFC78A", "#F472B6", "#4ADE80", "#38BDF8", "#FB7185", "#FACC15"];
-const corGrupo = (grupo) => {
-  const g = (grupo || "").toLowerCase().trim();
-  let h = 0;
-  for (let i = 0; i < g.length; i++) h = (h * 31 + g.charCodeAt(i)) >>> 0;
-  return GRUPO_CORES[h % GRUPO_CORES.length];
-};
+/* Faixa à esquerda do card = cor do estágio (0-3) a que a coluna pertence (igual ao número do topo) */
+const COL_ESTAGIO = { ideias: 0, prioridade: 0, estrut: 1, prod: 2, noar: 2, apublicar: 3, publicados: 3 };
 
 class Component extends DCLogic {
   state = (() => {
@@ -906,7 +900,7 @@ class Component extends DCLogic {
     };
     const mkCol = (titulo, dot, hint, key, cards) => ({
       titulo, dot, hint, count: cards.length,
-      cards: cards.map(c => ({ ...c, stripe: corGrupo(c.grupo) })),
+      cards: cards.map(c => ({ ...c, stripe: ESTAGIO_CORES[COL_ESTAGIO[key] ?? 0] })),
       dragOver: (e) => { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = "move"; },
       drop: (e) => {
         e.preventDefault();

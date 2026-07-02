@@ -49,7 +49,7 @@ body { font-family: "Geist", "SF Pro Text", system-ui, sans-serif; color: #F4F4F
       <!-- Stage group -->
       <div style="display: flex; flex-direction: column; flex: none; min-height: 0;">
         <div style="display: flex; align-items: baseline; gap: 10px; padding: 4px 8px 12px; flex: none;">
-          <span style="width: 22px; height: 22px; border-radius: 7px; background: #F4F4F5; color: #0A0A0A; display: inline-flex; align-items: center; justify-content: center; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; align-self: center; flex: none;">{{ sg.num }}</span>
+          <span style="width: 22px; height: 22px; border-radius: 7px; background: {{ sg.cor }}; color: {{ sg.corFg }}; display: inline-flex; align-items: center; justify-content: center; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; font-weight: 600; align-self: center; flex: none;">{{ sg.num }}</span>
           <span style="font-size: 15px; font-weight: 500; letter-spacing: -0.008em;">{{ sg.nome }}</span>
           <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #6E6E74; font-variant-numeric: tabular-nums;">{{ sg.count }}</span>
           <span style="flex: 1;"></span>
@@ -69,7 +69,7 @@ body { font-family: "Geist", "SF Pro Text", system-ui, sans-serif; color: #F4F4F
 
               <div style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 9px; padding-bottom: 2px;">
                 <sc-for list="{{ col.cards }}" as="k" hint-placeholder-count="3">
-                  <div draggable="{{ true }}" onDragStart="{{ k.dragStart }}" onClick="{{ k.abrir }}" style="background: #232327; border-radius: 13px; padding: 12px 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 8px; opacity: {{ k.opacity }}; flex: none; cursor: grab; transition: background 180ms;" style-hover="background: #2A2A2F;">
+                  <div draggable="{{ true }}" onDragStart="{{ k.dragStart }}" onClick="{{ k.abrir }}" style="background: #232327; border-radius: 13px; padding: 12px 14px 12px 12px; border-left: 3px solid {{ k.stripe }}; box-shadow: 0 2px 6px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 8px; opacity: {{ k.opacity }}; flex: none; cursor: grab; transition: background 180ms;" style-hover="background: #2A2A2F;">
                     <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">
                       <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 9.5px; letter-spacing: 0.07em; text-transform: uppercase; color: #6E6E74; line-height: 1.5; padding-top: 2px;">{{ k.grupo }}</span>
                       <sc-if value="{{ k.hasPrazo }}">
@@ -723,6 +723,19 @@ body { font-family: "Geist", "SF Pro Text", system-ui, sans-serif; color: #F4F4F
 const SAVE_KEY = "fluxo_kanban_save";
 const DATA_VERSION = 2;
 
+/* Cores dos estágios 0-3: gradiente do cinza ao azul puro (rgb 0,0,255) */
+const ESTAGIO_CORES = ["#8A8A90", "#5C5CB5", "#2E2EDA", "#0000FF"];
+const ESTAGIO_FG = ["#0A0A0A", "#F4F4F5", "#F4F4F5", "#FFFFFF"];
+
+/* Faixa à esquerda do card: cor estável por grupo (mesmo grupo = mesma cor em qualquer coluna) */
+const GRUPO_CORES = ["#3EE0CC", "#6E8FFA", "#A78BFA", "#FF8A65", "#FFC78A", "#F472B6", "#4ADE80", "#38BDF8", "#FB7185", "#FACC15"];
+const corGrupo = (grupo) => {
+  const g = (grupo || "").toLowerCase().trim();
+  let h = 0;
+  for (let i = 0; i < g.length; i++) h = (h * 31 + g.charCodeAt(i)) >>> 0;
+  return GRUPO_CORES[h % GRUPO_CORES.length];
+};
+
 class Component extends DCLogic {
   state = (() => {
     const base = {
@@ -875,7 +888,8 @@ class Component extends DCLogic {
       publicados: () => ({ nota: "no ar agora" }),
     };
     const mkCol = (titulo, dot, hint, key, cards) => ({
-      titulo, dot, hint, cards, count: cards.length,
+      titulo, dot, hint, count: cards.length,
+      cards: cards.map(c => ({ ...c, stripe: corGrupo(c.grupo) })),
       dragOver: (e) => { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = "move"; },
       drop: (e) => {
         e.preventDefault();
@@ -905,6 +919,7 @@ class Component extends DCLogic {
 
     const estagiosK = estagiosDef.map(([num, nome, desc, minW, flex, cols], ix) => ({
       num, nome, desc, minW, flex, cols,
+      cor: ESTAGIO_CORES[ix] || "#F4F4F5", corFg: ESTAGIO_FG[ix] || "#0A0A0A",
       count: cols.reduce((s, c) => s + c.count, 0),
       hasArrow: ix < estagiosDef.length - 1,
     }));

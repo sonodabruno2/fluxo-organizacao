@@ -16,6 +16,8 @@ html, body { margin: 0; padding: 0; height: 100%; background: #0E0E10; }
 body { font-family: "Geist", "SF Pro Text", system-ui, sans-serif; color: #F4F4F5; -webkit-font-smoothing: antialiased; }
 * { scrollbar-width: none; }
 *::-webkit-scrollbar { display: none; }
+/* ícones nunca capturam o clique — o evento sempre cai no botão/span com onClick */
+svg { pointer-events: none; }
 </style>
 </helmet>
 
@@ -796,6 +798,21 @@ class Component extends DCLogic {
 
   mover(id, col, extra) {
     this.setState({ items: this.state.items.map(x => x.id === id ? { ...x, col, ...(extra || {}) } : x) });
+  }
+
+  componentDidMount() {
+    // Esc fecha qualquer modal aberto — saída de emergência universal
+    this._onEsc = (e) => {
+      if (e.key !== "Escape") return;
+      if (this.state.modal || this.state.novo || this.state.lixeira) {
+        this.setState({ modal: null, novo: false, lixeira: false, confirmaExcluir: false, confirmaEsvaziar: false });
+      }
+    };
+    window.addEventListener("keydown", this._onEsc);
+  }
+
+  componentWillUnmount() {
+    if (this._onEsc) window.removeEventListener("keydown", this._onEsc);
   }
 
   renderVals() {

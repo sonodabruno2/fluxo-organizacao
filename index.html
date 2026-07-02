@@ -189,17 +189,17 @@ body { font-family: "Geist", "SF Pro Text", system-ui, sans-serif; color: #F4F4F
 
         <sc-if value="{{ novoIA }}">
           <div style="display: flex; flex-direction: column; gap: 7px;">
-            <label style="font-size: 12px; font-weight: 500; color: #A8A8AE;">Texto aberto ou resultado da IA</label>
-            <textarea value="{{ novoTexto }}" onChange="{{ onNovoTexto }}" placeholder="Cole aqui o texto ou o markdown gerado pela IA — o título vem da primeira linha" rows="7" style="border: 1px solid #2A2A2E; background: #1E1E22; border-radius: 12px; padding: 11px 14px; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; line-height: 1.55; color: #F4F4F5; outline: 0; resize: vertical;"></textarea>
+            <label style="font-size: 12px; font-weight: 500; color: #A8A8AE;">JSON do Claude ou texto aberto</label>
+            <textarea value="{{ novoTexto }}" onChange="{{ onNovoTexto }}" placeholder="Cole o JSON preenchido pelo Claude (molde do botão &quot;JSON p/ Claude&quot; nos cards) — o produto entra completo na Estruturação. Texto/markdown também funciona: vira uma ideia no catálogo." rows="7" style="border: 1px solid #2A2A2E; background: #1E1E22; border-radius: 12px; padding: 11px 14px; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; line-height: 1.55; color: #F4F4F5; outline: 0; resize: vertical;"></textarea>
           </div>
           <label style="border: 1.5px dashed #3A3A40; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; background: #121214; cursor: pointer;" style-hover="border-color: #6E6E74;">
-            <input type="file" accept=".md,.txt,.markdown,text/plain,text/markdown" onChange="{{ onNovoArquivo }}" style="display: none;">
+            <input type="file" accept=".md,.txt,.markdown,.json,text/plain,text/markdown,application/json" onChange="{{ onNovoArquivo }}" style="display: none;">
             <span style="width: 36px; height: 36px; border-radius: 10px; background: #232327; color: #6E6E74; display: inline-flex; align-items: center; justify-content: center; flex: none;">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3"></path><path d="m6 9 6-6 6 6"></path><path d="M5 21h14"></path></svg>
             </span>
             <span style="min-width: 0;">
               <span style="display: block; font-size: 12.5px; font-weight: 500; color: #A8A8AE;">{{ novoArquivoLabel }}</span>
-              <span style="display: block; font-size: 11px; color: #6E6E74; margin-top: 2px;">.md ou .txt — o conteúdo entra no campo acima</span>
+              <span style="display: block; font-size: 11px; color: #6E6E74; margin-top: 2px;">.json, .md ou .txt — o conteúdo entra no campo acima</span>
             </span>
           </label>
         </sc-if>
@@ -207,7 +207,7 @@ body { font-family: "Geist", "SF Pro Text", system-ui, sans-serif; color: #F4F4F
         <button onClick="{{ criarNovo }}" style="display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 0; font-family: inherit; font-weight: 500; font-size: 13px; padding: 12px 18px; border-radius: 9999px; background: #F4F4F5; color: #0A0A0A; opacity: {{ criarOpacity }}; cursor: {{ criarCursor }}; transition: all 200ms cubic-bezier(0.22,1,0.36,1);">{{ criarLabel }}
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
         </button>
-        <div style="font-size: 11px; color: #55555C; text-align: center; margin-top: -6px;">Entra na coluna Ideias do catálogo, já com a ficha aberta pra completar</div>
+        <div style="font-size: 11px; color: #55555C; text-align: center; margin-top: -6px;">Ideia solta entra no Catálogo; JSON completo entra direto na Estruturação com a ficha inteira preenchida</div>
       </div>
     </div>
   </sc-if>
@@ -229,9 +229,15 @@ body { font-family: "Geist", "SF Pro Text", system-ui, sans-serif; color: #F4F4F
           </div>
         </div>
         <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex: none;">
-          <span onClick="{{ fecharModal }}" style="width: 32px; height: 32px; border-radius: 9999px; background: #26262B; color: #A8A8AE; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: background 140ms;" style-hover="background: #303036;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
-          </span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span onClick="{{ md.copiarJson }}" title="Copia o molde JSON deste produto — cole no Claude pra gerar um produto novo já estruturado" style="display: inline-flex; align-items: center; gap: 6px; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; font-weight: 500; padding: 8px 13px; border-radius: 9999px; background: {{ md.jsonBg }}; color: {{ md.jsonFg }}; cursor: pointer; white-space: nowrap; transition: background 140ms;" style-hover="background: #2E2E33;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              {{ md.jsonLabel }}
+            </span>
+            <span onClick="{{ fecharModal }}" style="width: 32px; height: 32px; border-radius: 9999px; background: #26262B; color: #A8A8AE; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: background 140ms;" style-hover="background: #303036;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+            </span>
+          </div>
           <div style="display: flex; align-items: center; gap: 10px; width: 190px;">
             <div style="flex: 1; height: 5px; border-radius: 9999px; background: #26262B; overflow: hidden;"><div style="height: 100%; border-radius: 9999px; background: {{ md.progCor }}; width: {{ md.progPct }};"></div></div>
             <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: {{ md.progCor }}; font-variant-numeric: tabular-nums; white-space: nowrap;">{{ md.progLabel }}</span>
@@ -488,10 +494,25 @@ body { font-family: "Geist", "SF Pro Text", system-ui, sans-serif; color: #F4F4F
                 <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; color: #6E6E74;">nossos estudos · edite à vontade</span>
               </div>
               <sc-for list="{{ md.lpEstrutura }}" as="ls" hint-placeholder-count="8">
-                <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid #232327;">
-                  <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: #6E6E74; width: 18px; flex: none; font-variant-numeric: tabular-nums;">{{ ls.n }}</span>
-                  <span style="font-size: 12.5px; color: #F4F4F5; flex: 1; line-height: 1.4;">{{ ls.label }}</span>
-                  <span onClick="{{ ls.remover }}" style="color: #55555C; cursor: pointer; flex: none; display: inline-flex; transition: color 140ms;" style-hover="color: #F472B6;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></span>
+                <div style="border-top: 1px solid #232327;">
+                  <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0;">
+                    <span onClick="{{ ls.toggle }}" style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; cursor: pointer;">
+                      <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: #6E6E74; width: 18px; flex: none; font-variant-numeric: tabular-nums;">{{ ls.n }}</span>
+                      <span style="font-size: 12.5px; color: #F4F4F5; flex: 1; line-height: 1.4;">{{ ls.label }}</span>
+                      <span style="color: #55555C; flex: none; display: inline-flex; transform: {{ ls.chev }}; transition: transform 140ms;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span>
+                    </span>
+                    <span onClick="{{ ls.remover }}" style="color: #55555C; cursor: pointer; flex: none; display: inline-flex; transition: color 140ms;" style-hover="color: #F472B6;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></span>
+                  </div>
+                  <sc-if value="{{ ls.aberto }}">
+                    <div style="margin: 0 0 12px 28px; background: #0C0C0E; border-radius: 12px; padding: 13px 16px;">
+                      <div style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #FFC78A; margin-bottom: 6px;">Como escrever este bloco</div>
+                      <div style="font-size: 12.5px; color: #D4D4D8; line-height: 1.6;">{{ ls.orientacao }}</div>
+                      <sc-if value="{{ ls.temConteudo }}">
+                        <div style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #3EE0CC; margin: 12px 0 6px;">Conteúdo planejado</div>
+                        <div style="font-size: 12.5px; color: #F4F4F5; line-height: 1.65; white-space: pre-wrap;">{{ ls.conteudo }}</div>
+                      </sc-if>
+                    </div>
+                  </sc-if>
                 </div>
               </sc-for>
               <div style="display: flex; align-items: center; gap: 8px; border-top: 1px solid #232327; padding-top: 10px; margin-top: 2px;">
@@ -568,6 +589,37 @@ body { font-family: "Geist", "SF Pro Text", system-ui, sans-serif; color: #F4F4F
             </div>
 
             <div>
+              <div style="font-size: 13.5px; font-weight: 500; margin-bottom: 4px;">O que escrever na imagem — 10 frases</div>
+              <div style="font-size: 11.5px; color: #6E6E74; line-height: 1.5; margin-bottom: 8px;">Frases curtas pro texto DA imagem do anúncio — escolha uma por variação, nunca mais de uma ideia por arte.</div>
+              <sc-for list="{{ md.critFrasesImagem }}" as="fi" hint-placeholder-count="10">
+                <div style="display: flex; align-items: baseline; gap: 10px; padding: 7px 0; border-top: 1px solid #232327;">
+                  <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: #6E6E74; width: 18px; flex: none; font-variant-numeric: tabular-nums;">{{ fi.n }}</span>
+                  <span style="font-size: 12.5px; color: #F4F4F5; flex: 1; line-height: 1.45;">{{ fi.texto }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div>
+              <div style="font-size: 13.5px; font-weight: 500; margin-bottom: 4px;">Descrições do post — 10 opções</div>
+              <div style="font-size: 11.5px; color: #6E6E74; line-height: 1.5; margin-bottom: 8px;">Legendas prontas pra publicar — teste ângulos diferentes e repita a que performar.</div>
+              <sc-for list="{{ md.critDescricoesList }}" as="dp" hint-placeholder-count="10">
+                <div style="display: flex; align-items: baseline; gap: 10px; padding: 8px 0; border-top: 1px solid #232327;">
+                  <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: #6E6E74; width: 18px; flex: none; font-variant-numeric: tabular-nums;">{{ dp.n }}</span>
+                  <span style="font-size: 12.5px; color: #D4D4D8; flex: 1; line-height: 1.55; white-space: pre-wrap;">{{ dp.texto }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div>
+              <div style="font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">O que não pode faltar no post</div>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <sc-for list="{{ md.critNaoPodeFaltarList }}" as="nf" hint-placeholder-count="5">
+                  <span style="font-size: 11.5px; font-weight: 500; padding: 6px 12px; border-radius: 9999px; background: #232327; color: #A8A8AE; box-shadow: inset 0 0 0 1px #2E2E33;">{{ nf.label }}</span>
+                </sc-for>
+              </div>
+            </div>
+
+            <div>
               <div style="font-size: 13.5px; font-weight: 500; margin-bottom: 8px;">Recomendação por formato</div>
               <div style="display: inline-flex; align-items: center; gap: 2px; padding: 4px; background: #0C0C0E; border-radius: 9999px; margin-bottom: 10px;">
                 <span onClick="{{ md.goCritCarrossel }}" style="position: relative; font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 9999px; cursor: pointer; color: {{ md.critCarrosselFg }};">
@@ -584,6 +636,29 @@ body { font-family: "Geist", "SF Pro Text", system-ui, sans-serif; color: #F4F4F
                 </span>
               </div>
               <div style="background: #0C0C0E; border-radius: 12px; padding: 14px 16px; font-size: 12.5px; color: #D4D4D8; line-height: 1.6;">{{ md.critRecTexto }}</div>
+              <sc-if value="{{ critCarrossel }}">
+                <div style="margin-top: 10px;">
+                  <div style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #3EE0CC; margin-bottom: 6px;">Conteúdo do carrossel — card a card</div>
+                  <sc-for list="{{ md.critCarrosselCards }}" as="cc" hint-placeholder-count="5">
+                    <div style="display: flex; gap: 12px; padding: 10px 14px; border: 1px solid #2A2A2E; border-radius: 12px; background: #1A1A1D; margin-bottom: 7px;">
+                      <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: #6E6E74; flex: none; padding-top: 2px;">{{ cc.n }}</span>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="font-size: 12.5px; font-weight: 500; color: #F4F4F5;">{{ cc.titulo }}</div>
+                        <div style="font-size: 12px; color: #A8A8AE; line-height: 1.55; margin-top: 3px; white-space: pre-wrap;">{{ cc.texto }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ critVideo }}">
+                <div style="margin-top: 10px;">
+                  <div style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #3EE0CC; margin-bottom: 6px;">Roteiro do vídeo — completo</div>
+                  <div style="border: 1px solid #2A2A2E; border-radius: 12px; background: #1A1A1D; padding: 14px 16px; font-size: 12.5px; color: #F4F4F5; line-height: 1.7; white-space: pre-wrap;">{{ md.critRoteiroVideo }}</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ critImagem }}">
+                <div style="margin-top: 10px; font-size: 11.5px; color: #6E6E74; line-height: 1.5;">Use as 10 frases da seção "O que escrever na imagem" acima — uma frase por variação de arte.</div>
+              </sc-if>
             </div>
           </sc-if>
 
@@ -646,7 +721,7 @@ body { font-family: "Geist", "SF Pro Text", system-ui, sans-serif; color: #F4F4F
 // Persistência: quadro salvo no navegador (localStorage). Ao mudar os dados
 // embutidos abaixo (items/DET), aumente DATA_VERSION pra descartar saves antigos.
 const SAVE_KEY = "fluxo_kanban_save";
-const DATA_VERSION = 1;
+const DATA_VERSION = 2;
 
 class Component extends DCLogic {
   state = (() => {
@@ -654,7 +729,8 @@ class Component extends DCLogic {
     modal: null, modalTab: "visao",
     novo: false, novoTab: "manual", novoTitulo: "", novoDesc: "", novoTexto: "", novoArquivo: "", nextId: 100,
     lixeira: false, confirmaExcluir: false, confirmaEsvaziar: false,
-    matTab: "estrutura", docs: {}, critTab: "carrossel", newStep: "", newHeadline: "",
+    matTab: "estrutura", docs: {}, detExtra: {}, critTab: "carrossel", newStep: "", newHeadline: "",
+    lpExp: {}, jsonCopiado: false,
     items: [
       // catálogo · ideias (etiquetas catalogo/estudar/descartado)
       { id: 6,  col: "ideias", nome: "Ebook de precificação pra freelancer", grupo: "Nível 2 · com estruturação", nivel: "N2", tag: "catalogo" },
@@ -698,6 +774,7 @@ class Component extends DCLogic {
       if (s && s.v === DATA_VERSION && Array.isArray(s.items)) {
         base.items = s.items;
         base.docs = s.docs || {};
+        base.detExtra = s.detExtra || {};
         base.nextId = s.nextId || base.nextId;
       }
     } catch (e) { /* save corrompido: segue com os dados embutidos */ }
@@ -710,7 +787,7 @@ class Component extends DCLogic {
 
   renderVals() {
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify({ v: DATA_VERSION, items: this.state.items, docs: this.state.docs, nextId: this.state.nextId }));
+      localStorage.setItem(SAVE_KEY, JSON.stringify({ v: DATA_VERSION, items: this.state.items, docs: this.state.docs, detExtra: this.state.detExtra, nextId: this.state.nextId }));
     } catch (e) { /* navegação privada/sem espaço: segue sem salvar */ }
     const alertaDias = this.props.alertaPrazoDias ?? 5;
     const mostrarDescartadas = this.props.mostrarDescartadas ?? true;
@@ -732,7 +809,7 @@ class Component extends DCLogic {
       this._dragId = i.id;
       if (e && e.dataTransfer) { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", String(i.id)); }
     };
-    const open = (i) => () => this.setState({ modal: i.id, modalTab: "visao", matTab: "estrutura", confirmaExcluir: false });
+    const open = (i) => () => this.setState({ modal: i.id, modalTab: "visao", matTab: "estrutura", confirmaExcluir: false, lpExp: {}, jsonCopiado: false });
 
     const cardIdeia = (i) => ({
       ...base, nome: i.nome, grupo: i.grupo, dragStart: drag(i), abrir: open(i),
@@ -873,11 +950,64 @@ class Component extends DCLogic {
           ["Empresas pagam até R$ 2 mil/mês só pra alguém cuidar do Instagram — seja essa pessoa", false],
           ["Você não precisa de faculdade de marketing pra faturar R$ 10 mil/mês", true],
           ["5 clientes, R$ 2 mil cada: o caminho real até R$ 10.000/mês", false],
+          ["A profissão que todo comércio do seu bairro precisa (e quase ninguém oferece)", false],
+          ["Do primeiro contato ao contrato assinado: o script completo pra fechar clientes de redes", false],
+          ["Trabalhe de casa cuidando de Instagram: o método do zero ao primeiro contrato em 30 dias", true],
         ],
         buscas: [
           { q: 'pinterest · "feed instagram antes depois estética [nicho]"' },
           { q: 'pinterest · "moodboard cores [nicho]"' },
         ],
+        lpBlocos: [
+          { bloco: "Alerta de urgência no topo", orientacao: "Urgência honesta de lançamento — preço sobe numa data real. Sem countdown falso.", conteudo: "⚡ PREÇO DE LANÇAMENTO: R$ 47 até domingo — depois volta pra R$ 97. Acesso vitalício + anexos inclusos." },
+          { bloco: "Headline — a promessa central", orientacao: "A mesma promessa do criativo, palavra por palavra. Número + condição + quebra da maior objeção (\"mesmo começando do zero\").", conteudo: "Use a vencedora do teste A/B do banco abaixo — a promessa precisa ser idêntica no anúncio, na headline e no checkout." },
+          { bloco: "Sub-headline de reforço", orientacao: "O COMO por trás da promessa: método, formato e sem o quê.", conteudo: "O método completo em 10 partes pra fechar seus primeiros clientes de gestão de redes sociais — sem faculdade de marketing, sem portfólio e sem ser influencer." },
+          { bloco: "Vídeo ou imagem leve", orientacao: "Prova visual > produção cara. Peso < 200kb.", conteudo: "Mockup 3D do curso aberto no celular + print real de proposta fechada de R$ 1.500/mês (nome e foto borrados)." },
+          { bloco: "Bloco emocional — dor e desejo", orientacao: "Espelhar a dor com as palavras do público. 4 parágrafos curtos: dor → agitação → desejo → virada.", conteudo: "Você sabe usar o Canva. Sabe o que funciona no Instagram. E mesmo assim, todo mês, o dinheiro acaba antes do mês.\n\nEnquanto isso, a padaria do seu bairro posta foto tremida com data errada — e o dono sabe que está perdendo cliente por isso. Ele não precisa de agência de R$ 5 mil. Precisa de VOCÊ.\n\nImagina cobrar R$ 1.500/mês de 5 pequenos negócios pra fazer o que você já faz de graça no seu próprio feed. São R$ 7.500 — trabalhando de casa, no seu horário.\n\nO que separa você disso não é talento. É método: o que vender, quanto cobrar, como fechar. É exatamente isso que este curso entrega." },
+          { bloco: "Bloco lógico — o que é e como funciona", orientacao: "Bullets escaneáveis: as 10 partes resumidas + formato + anexos.", conteudo: "Curso completo em 10 partes (80-100 pág.):\n• Sua oferta e seu preço — o que vender exatamente\n• Portfólio sem ter cliente ainda\n• Prospecção: o script do primeiro contato ao contrato\n• Fluxo de trabalho + conteúdo que performa\n• Ferramentas (design, agendamento, IA) e retenção\n• Plano de ação 30/60/90 dias\n\nANEXOS: modelo de proposta, script de venda, planilha de gestão de clientes e glossário.\nAcesso imediato e vitalício, leia no celular ou PC." },
+          { bloco: "Bloco racional — oferta, ancoragem, CTA", orientacao: "Empilhar valor com preços somados, ancorar e revelar. Garantia 7 dias.", conteudo: "Curso completo (R$ 97) + Modelo de proposta (R$ 27) + Script de fechamento (R$ 27) + Planilha de clientes (R$ 19) = R$ 170\n\nHOJE: R$ 47 · pagamento único · acesso vitalício\n\nGarantia incondicional de 7 dias: não gostou, devolvemos tudo — sem perguntas.\n\n[QUERO COMEÇAR MEUS R$ 10 MIL/MÊS →]" },
+          { bloco: "FAQ + reafirmação + CTA final", orientacao: "As objeções da aba Overview viram perguntas. Última resposta reafirma promessa + garantia.", conteudo: "1. Preciso ter faculdade de marketing? Não — o método ensina do zero, com scripts prontos.\n2. Não tenho portfólio… A parte 4 ensina a montar um em uma semana, sem ter cliente.\n3. Preciso ser influencer? Não. Você vai cuidar das redes DOS OUTROS — seu perfil pessoal não importa.\n4. Quanto tempo até o primeiro cliente? Seguindo o plano 30/60/90, a meta é o primeiro contrato em 30 dias.\n5. E se não funcionar pra mim? 7 dias de garantia total — devolvemos 100% sem perguntas.\n\nR$ 47 hoje pode virar R$ 10 mil/mês. [GARANTIR MINHA VAGA →]" },
+        ],
+        critImagemFrases: [
+          "R$ 10 mil/mês cuidando de Instagram",
+          "Empresas pagam até R$ 2 mil/mês por isso",
+          "Sem faculdade. Sem portfólio. Com método.",
+          "5 clientes × R$ 2 mil = sua meta",
+          "Pare de postar de graça",
+          "Seu Canva pode virar salário",
+          "A profissão que todo comércio precisa",
+          "Do zero ao 1º cliente em 30 dias",
+          "Trabalhe de casa cuidando de redes",
+          "De R$ 97 por R$ 47 · acesso vitalício",
+        ],
+        critDescricoes: [
+          "Todo dia uma pequena empresa da sua cidade desiste do Instagram por falta de tempo. É aí que você entra — e cobra por isso. Método completo do zero ao 1º contrato: link na bio. R$ 47.",
+          "Você já sabe usar Canva e Instagram. Só falta saber COBRAR por isso. O curso mostra o caminho: oferta, preço, prospecção e contrato. Link na bio.",
+          "5 clientes pagando R$ 2 mil = R$ 10 mil/mês. Parece distante? O plano 30/60/90 do curso quebra isso em passos semanais. Começa hoje por R$ 47.",
+          "Ninguém te ensinou a transformar habilidade em renda — te ensinaram a postar de graça. Chega. Método completo de gestão de redes pra pequenos negócios: link na bio.",
+          "A padaria do seu bairro precisa de você (ela só não sabe ainda). Aprenda a fechar contratos de gestão de redes com o comércio local. R$ 47, acesso vitalício.",
+          "Sem faculdade de marketing. Sem portfólio. Sem ser influencer. Só método: o que vender, quanto cobrar e como fechar. Arrasta pra cima.",
+          "Print real de contrato fechado no 1º mês usando o script do curso 👆 O passo a passo completo está no link da bio. R$ 47 até domingo.",
+          "Quanto vale seu tempo? Gestores de redes iniciantes cobram R$ 1.000-2.000/mês POR CLIENTE. O curso ensina a chegar lá em 30 dias. Link na bio.",
+          "Trabalhar de casa, no seu horário, cuidando de Instagram de empresa. Não é promessa — é uma profissão em alta. Método completo: link na bio.",
+          "De R$ 97 por R$ 47 SÓ até domingo: curso completo + proposta pronta + script de fechamento + planilha de clientes. Garantia de 7 dias. Corre.",
+        ],
+        critNaoPodeFaltar: [
+          "Headline gigante e legível no mobile",
+          "A MESMA promessa da LP (R$ 10 mil/mês, começando do zero)",
+          "Preço com âncora: de R$ 97 por R$ 47",
+          "CTA explícito: link na bio / arrasta pra cima",
+          "Prova real: print de contrato ou pagamento",
+          "Garantia de 7 dias em letra visível",
+        ],
+        critCarrossel: [
+          { titulo: "Card 1 — gancho", texto: "COMO FATURAR R$ 10 MIL/MÊS CUIDANDO DE REDES DE PEQUENAS EMPRESAS (mesmo começando do zero) — fundo escuro, headline gigante." },
+          { titulo: "Card 2 — dor", texto: "Você domina Canva e Instagram… e continua sem renda com isso. Enquanto o comércio da sua cidade implora por alguém que cuide das redes dele." },
+          { titulo: "Card 3 — a conta", texto: "A conta que fecha: 5 clientes × R$ 2.000/mês = R$ 10.000. Ou 10 × R$ 1.000. Sem ser influencer, sem faculdade." },
+          { titulo: "Card 4 — prova", texto: "Print de proposta aceita de R$ 1.500/mês + as 10 partes do método listadas em bullets curtos." },
+          { titulo: "Card 5 — CTA", texto: "Curso completo + proposta pronta + script + planilha: de R$ 97 por R$ 47. Garantia 7 dias. ARRASTA PRA CIMA / LINK NA BIO." },
+        ],
+        critVideoRoteiro: "GANCHO (0-3s): \"Empresas estão pagando até R$ 2 mil por mês pra alguém cuidar do Instagram delas — e quase ninguém sabe fazer isso direito.\" (olhando pra câmera, corte seco)\n\nDOR (3-10s): \"Você provavelmente já sabe usar Canva, já entende de reels… e continua sem ganhar NADA com isso. Postando de graça no seu próprio perfil.\"\n\nVIRADA (10-20s): \"A diferença entre você e quem já fatura R$ 10 mil/mês com gestão de redes é MÉTODO: o que vender, quanto cobrar, como fechar contrato. É exatamente isso que eu montei nesse curso de 10 partes.\"\n\nPROVA (20-28s): mostrar print de contrato/pagamento na tela. \"Primeiro contrato em 30 dias seguindo o plano — sem portfólio, sem faculdade.\"\n\nCTA (28-40s): \"Tá de R$ 97 por R$ 47 só até domingo, com proposta pronta, script de fechamento e garantia de 7 dias. Link na bio — começa hoje.\"\n\nFORMATO: vertical 9:16, legendado (80% assiste sem som), cortes a cada 2-3s, luz natural.",
         conteudo: "PARTE 1 — Por que gestão de redes sociais é uma porta de entrada realista pra R$ 10k/mês\n\nO mercado de pequenas empresas sem ninguém cuidando das redes é gigante. O dono não tem tempo, não sabe o que postar e muitas vezes tem vergonha do próprio feed. É aí que você entra.\n\nA conta que fecha R$ 10.000: 5 clientes a R$ 2.000, ou 10 a R$ 1.000. Não precisa ser influencer, nem ter curso de marketing, nem portfólio grande — precisa de método.\n\n(continue escrevendo cada parte aqui, na íntegra…)",
       },
       13: {
@@ -911,11 +1041,65 @@ class Component extends DCLogic {
           ["Os 3 primeiros anos não voltam — e dá pra aproveitar sem virar pedagoga", true],
           ["100+ atividades por idade pra ver seu filho evoluindo semana a semana", false],
           ["De rolo de papel a marco de desenvolvimento: brincadeiras que funcionam de verdade", false],
+          ["O que fazer com seu bebê hoje? Uma brincadeira por dia, na idade certa", false],
+          ["Menos tela, mais conexão: atividades de 10 minutos que cabem na sua rotina", false],
+          ["O plano de 30 dias pra brincar com propósito — sem gastar nada", true],
         ],
         buscas: [
           { q: 'pinterest · "atividades montessori bebê [idade]"' },
           { q: 'pinterest · "atividades sensoriais caseiras 1 ano"' },
         ],
+        lpBlocos: [
+          { bloco: "Alerta de urgência no topo", orientacao: "Urgência honesta e leve — tom acolhedor, sem pressão agressiva (público sensível a culpa).", conteudo: "🍼 Preço de lançamento: R$ 47 até domingo (depois R$ 97) — com os cartões de atividades e a tabela de marcos de brinde." },
+          { bloco: "Headline — a promessa central", orientacao: "Promessa anti-culpa: resultado + tempo mínimo + \"com o que você já tem em casa\". Nunca culpar a mãe.", conteudo: "Use a vencedora do banco abaixo — mantenha a mesma no anúncio e na página." },
+          { bloco: "Sub-headline de reforço", orientacao: "O COMO: atividades por idade + plano pronto + sem materiais caros.", conteudo: "Mais de 100 atividades organizadas por idade (0-6m, 6-12m, 1-2a, 2-3a) + um plano de 30 dias pronto — tudo com itens que você já tem em casa." },
+          { bloco: "Vídeo ou imagem leve", orientacao: "Foto real e afetiva > ilustração. Bebê brincando com item de casa (rolo de papel, potes).", conteudo: "Foto quente de bebê brincando com pote e colher de pau + mockup do guia no celular da mãe." },
+          { bloco: "Bloco emocional — dor e desejo", orientacao: "Validar o cansaço SEM culpar. Espelhar a cena real: fim do dia, celular, culpa. Terminar no desejo: presença leve.", conteudo: "O dia acaba e vem aquela pontada: \"passei tão pouco tempo de verdade com ele hoje\".\n\nNão é falta de amor — é falta de energia pra inventar brincadeira depois de um dia inteiro no modo sobrevivência. E quando sobra um tempinho, vem a dúvida: será que essa brincadeira serve pra idade dele?\n\nAgora imagina abrir o guia, ver a atividade de HOJE pra idade EXATA do seu filho, pegar um pote da cozinha e ter 10 minutos de conexão de verdade — vendo ele evoluir semana a semana.\n\nSem culpa nos dias que não der. O plano já conta com isso." },
+          { bloco: "Bloco lógico — o que é e como funciona", orientacao: "Bullets: as faixas de idade, o plano de 30 dias, os anexos. Reforçar \"sem materiais caros\".", conteudo: "Guia completo em 10 partes (80-100 pág.):\n• Marcos de 0 a 3 anos explicados sem neurose\n• Os 5 pilares da estimulação em casa\n• Atividades por idade: 0-6m · 6-12m · 1-2a · 2-3a\n• Brinquedos que valem a pena (e os que são só marketing)\n• Telas, birras e sono — sem julgamento\n• Plano de 30 dias: uma brincadeira por dia, pronta\n\nANEXOS: tabela de marcos, cartões de atividade pra imprimir, lista de materiais de casa e diário de conquistas.\nLeia no celular, na fila do pediatra." },
+          { bloco: "Bloco racional — oferta, ancoragem, CTA", orientacao: "Comparar com o preço de UM brinquedo educativo. Garantia 7 dias.", conteudo: "Guia completo (R$ 97) + Cartões de atividade (R$ 27) + Tabela de marcos (R$ 19) + Diário de conquistas (R$ 17) = R$ 160\n\nHOJE: R$ 47 — menos que UM brinquedo \"educativo\" que seu filho ignora em 2 dias.\n\nGarantia de 7 dias: não fez diferença na sua rotina, devolvemos tudo.\n\n[QUERO BRINCAR COM PROPÓSITO →]" },
+          { bloco: "FAQ + reafirmação + CTA final", orientacao: "Objeções da Overview em perguntas — tom de mãe pra mãe.", conteudo: "1. Não tenho tempo… As atividades levam 10 minutos e o plano já vem pronto — zero preparação.\n2. Não sou pedagoga. Nem precisa: cada atividade explica o que ela desenvolve, em linguagem simples.\n3. Preciso comprar materiais? Não — tudo usa o que já existe na sua casa (potes, rolos, panos).\n4. Meu bebê não para quieto… Tem atividades pra cada temperamento, inclusive pros dias difíceis.\n5. Cada criança é diferente, funciona pra minha? As faixas são por marcos, não idade rígida — você adapta com a tabela.\n6. E se eu não gostar? 7 dias de garantia, devolução total.\n\n10 minutos por dia. 3 anos que não voltam. [GARANTIR MEU GUIA →]" },
+        ],
+        critImagemFrases: [
+          "10 minutos por dia mudam o desenvolvimento do seu filho",
+          "A brincadeira certa pra cada idade (0 a 3)",
+          "Seu bebê não precisa de brinquedo caro",
+          "100+ atividades com o que você já tem em casa",
+          "Chega de culpa: um plano que cabe na rotina",
+          "O que fazer com o bebê hoje? Resolvido.",
+          "De 0 a 3 anos: a fase que não volta",
+          "Menos tela, mais conexão",
+          "30 dias de brincadeiras prontas, uma por dia",
+          "De R$ 97 por R$ 47 · guia por idade",
+        ],
+        critDescricoes: [
+          "O dia acaba e vem a culpa: \"brinquei tão pouco com ele hoje\". Respira. 10 minutos com a atividade certa valem mais que uma tarde de estímulo aleatório. O guia por idade está no link da bio. R$ 47.",
+          "Rolo de papel + 10 minutos = coordenação motora, fala e vínculo. Você não precisa de brinquedo importado — precisa saber O QUE fazer em cada fase. Guia completo: link na bio.",
+          "Nos 3 primeiros anos o cérebro forma até 1 milhão de conexões por segundo. E o maior acelerador é você. 100+ atividades por idade, prontas: arrasta pra cima.",
+          "\"Meu bebê não para quieto\" — tem atividade pra esse temperamento também 😉 Guia com 100+ brincadeiras por idade (0-3), plano de 30 dias incluso. Link na bio.",
+          "Pra mãe que tá no modo sobrevivência: o plano de 30 dias já vem pronto. Abre, vê a atividade do dia, pega um pote da cozinha. 10 minutos. Sem culpa nos dias que não der.",
+          "Brinquedo educativo de R$ 150 que ele ignora em 2 dias… ou R$ 47 num guia com 100+ atividades que usam o que você já tem em casa? Link na bio.",
+          "Ele vai lembrar dos potes, das cócegas e de você no chão brincando — não do brinquedo caro. Atividades por idade + tabela de marcos + diário de conquistas: R$ 47.",
+          "Sem virar pedagoga, sem Pinterest às 23h procurando atividade: o guia entrega a brincadeira certa pra idade exata do seu filho. Todo dia. Link na bio.",
+          "Menos tela não precisa ser briga — precisa de alternativa pronta. 30 dias de brincadeiras de 10 minutos, uma por dia. Começa hoje: arrasta pra cima.",
+          "De R$ 97 por R$ 47 só até domingo: guia por idade (0-3) + cartões pra imprimir + tabela de marcos + diário. Garantia de 7 dias. Corre que a fase não espera 💛",
+        ],
+        critNaoPodeFaltar: [
+          "Headline legível no mobile, tom acolhedor",
+          "A MESMA promessa da LP (10 minutos, o que tem em casa)",
+          "Faixa etária visível (0 a 3 anos)",
+          "Preço com âncora: de R$ 97 por R$ 47",
+          "CTA explícito: link na bio / arrasta pra cima",
+          "Foto real e afetiva (nunca banco de imagem frio)",
+          "Zero culpa — nunca acusar a mãe",
+        ],
+        critCarrossel: [
+          { titulo: "Card 1 — gancho", texto: "COMO ESTIMULAR SEU FILHO DE 0 A 3 ANOS COM BRINCADEIRAS DE 10 MINUTOS (usando o que você já tem em casa) — foto afetiva de fundo." },
+          { titulo: "Card 2 — dor", texto: "\"Será que estou estimulando ele o suficiente?\" — a dúvida que toda mãe carrega, junto com o cansaço e o celular que engole o tempo." },
+          { titulo: "Card 3 — virada", texto: "10 minutos com a atividade CERTA pra idade valem mais que uma tarde de estímulo aleatório. É ciência: interação com você > qualquer brinquedo." },
+          { titulo: "Card 4 — prova", texto: "100+ atividades organizadas por faixa (0-6m, 6-12m, 1-2a, 2-3a) + tabela de marcos + plano de 30 dias pronto. Mostrar páginas do guia." },
+          { titulo: "Card 5 — CTA", texto: "De R$ 97 por R$ 47, com cartões pra imprimir e garantia de 7 dias. A fase não espera. LINK NA BIO." },
+        ],
+        critVideoRoteiro: "GANCHO (0-3s): \"Seu filho não precisa de brinquedo caro — ele precisa de 10 minutos seus. Do jeito certo.\" (voz calma, cena de bebê brincando com pote)\n\nDOR (3-10s): \"Toda mãe conhece essa culpa do fim do dia: 'brinquei tão pouco com ele hoje'. E quando sobra tempo, vem a dúvida — que brincadeira serve pra idade dele?\"\n\nVIRADA (10-20s): \"Esse guia resolve as duas coisas: 100+ atividades organizadas por idade, de 0 a 3 anos, todas com coisas que você já tem em casa. E um plano de 30 dias já pronto — uma brincadeira por dia.\"\n\nPROVA (20-28s): mostrar páginas do guia + tabela de marcos na tela. \"Cada atividade explica o que ela desenvolve: fala, coordenação, autonomia.\"\n\nCTA (28-40s): \"Tá de R$ 97 por R$ 47 até domingo, com cartões pra imprimir e garantia de 7 dias. Link na bio. Os 3 primeiros anos não voltam — mas dá tempo de aproveitar.\"\n\nFORMATO: vertical 9:16, legendado, música suave, cenas reais de bebê + mãe (nunca stock frio).",
         conteudo: "PARTE 1 — Como seu filho se desenvolve: marcos de 0 a 3 anos (sem neurose)\n\nNos 3 primeiros anos o cérebro forma até 1 milhão de conexões por segundo — e o que mais acelera isso não é brinquedo importado: é interação com você. A boa notícia: 10 minutos de brincadeira com propósito valem mais que uma tarde de estímulo aleatório.\n\nA conta que fecha pra mãe cansada: 1 atividade por dia, 10 minutos, com material que já existe em casa. Sem culpa nos dias que não der — o plano de 30 dias já prevê isso.\n\n(continue escrevendo cada parte aqui, na íntegra…)",
       },
     };
@@ -924,7 +1108,7 @@ class Component extends DCLogic {
     let md = null, navMeta = {};
     const mTab = this.state.modalTab;
     if (mItem) {
-      const d = DET[mItem.id] || {};
+      const d = { ...(DET[mItem.id] || {}), ...((this.state.detExtra || {})[mItem.id] || {}) };
       const sIdx = stageIdxMap[mItem.col];
       const precoM = /R\$ ?[\d.,]+ ?(mil)?/.exec(mItem.grupo || "");
       const preco = d.preco || (precoM ? precoM[0].trim() : "a definir");
@@ -1098,11 +1282,40 @@ class Component extends DCLogic {
 
       /* ---- Página de vendas: estrutura editável + headlines editáveis ---- */
       const lpEstruturaDefault = ["Alerta de urgência no topo", "Headline — a promessa central", "Sub-headline de reforço", "Vídeo ou imagem leve", "Bloco emocional — dor e desejo", "Bloco lógico — o que é e como funciona", "Bloco racional — oferta, ancoragem, CTA", "FAQ + reafirmação + CTA final"];
-      const lpEstruturaArr = doc.lpEstrutura ?? lpEstruturaDefault;
-      const lpEstrutura = lpEstruturaArr.map((label, ix) => ({
-        n: pad2(ix + 1), label,
-        remover: () => setDoc({ lpEstrutura: lpEstruturaArr.filter((_, j) => j !== ix) }),
-      }));
+      const lpEstruturaArr = doc.lpEstrutura ?? d.lpEstruturaCustom ?? lpEstruturaDefault;
+      /* orientação padrão por bloco — usada quando o produto ainda não tem lpBlocos próprio */
+      const LP_BLOCO_PADRAO = {
+        "Alerta de urgência no topo": { orientacao: "Barra fina acima da dobra. Urgência honesta e verificável: preço de lançamento com data, vagas de bônus, turma. Nada de countdown falso — quebra a confiança.", conteudo: "" },
+        "Headline — a promessa central": { orientacao: "A mesma promessa do criativo, palavra por palavra. Específica: resultado + prazo/condição + quebra da maior objeção. Teste as opções do banco abaixo.", conteudo: "" },
+        "Sub-headline de reforço": { orientacao: "O reforço lógico da headline: COMO entrega (método/formato), PRA QUEM é e SEM O QUÊ (a objeção). 1-2 linhas.", conteudo: "" },
+        "Vídeo ou imagem leve": { orientacao: "Mockup do produto ou print de resultado real. Peso < 200kb, sem autoplay com som. Se vídeo: 30-60s com o gancho do criativo.", conteudo: "" },
+        "Bloco emocional — dor e desejo": { orientacao: "Espelhe a dor com as MESMAS palavras do público (aba Overview). 3-4 parágrafos curtos: cenário da dor → agitação → vislumbre do desejo → virada pro produto.", conteudo: "" },
+        "Bloco lógico — o que é e como funciona": { orientacao: "O que a pessoa recebe, parte por parte (estrutura do material resumida), formato, acesso e em quanto tempo consome. Bullets escaneáveis.", conteudo: "" },
+        "Bloco racional — oferta, ancoragem, CTA": { orientacao: "Empilhe o valor (material + anexos + bônus com preço somado), ancore alto e revele o preço real. Garantia incondicional de 7 dias. CTA com verbo + benefício.", conteudo: "" },
+        "FAQ + reafirmação + CTA final": { orientacao: "5-6 perguntas — as objeções reais da aba Overview viram perguntas. Última resposta reafirma promessa + garantia. Fecha com o mesmo CTA.", conteudo: "" },
+      };
+      const lpBlocosDe = (label) => {
+        const custom = (d.lpBlocos || []).find(b => b && b.bloco === label) || {};
+        const pad = LP_BLOCO_PADRAO[label] || {};
+        return { orientacao: custom.orientacao || pad.orientacao || "Defina a orientação deste bloco — o que ele precisa comunicar e como.", conteudo: custom.conteudo || pad.conteudo || "" };
+      };
+      const lpEstrutura = lpEstruturaArr.map((label, ix) => {
+        const bl = lpBlocosDe(label);
+        let conteudo = bl.conteudo;
+        /* bloco de headline sempre mostra o banco completo, numerado e vivo */
+        if (/headline/i.test(label) && !/sub-?headline/i.test(label)) {
+          const banco = (doc.lpHeadlines ?? (d.headlines ? d.headlines.map(h => ({ texto: h[0], riscada: false })) : [])).filter(h => !h.riscada).map((h, j) => pad2(j + 1) + ". " + h.texto).join("\n");
+          conteudo = (conteudo ? conteudo + "\n\n" : "") + "AS OPÇÕES DO BANCO (risque na lista abaixo as descartadas):\n" + banco;
+        }
+        const aberto = !!this.state.lpExp[ix];
+        return {
+          n: pad2(ix + 1), label, aberto,
+          orientacao: bl.orientacao, conteudo, temConteudo: !!conteudo,
+          chev: aberto ? "rotate(90deg)" : "rotate(0deg)",
+          toggle: () => this.setState({ lpExp: { ...this.state.lpExp, [ix]: !aberto } }),
+          remover: () => setDoc({ lpEstrutura: lpEstruturaArr.filter((_, j) => j !== ix) }),
+        };
+      });
       const addStep = () => {
         const v = this.state.newStep.trim(); if (!v) return;
         setDoc({ lpEstrutura: [...lpEstruturaArr, v] }); this.setState({ newStep: "" });
@@ -1134,6 +1347,28 @@ class Component extends DCLogic {
       const critHeadlinesTexto = lpHeadlinesArr.filter(h => !h.riscada).map(h => h.texto);
       const critApoio = doc.critApoio ?? (d.critApoio || "");
       const critLegenda = doc.critLegenda ?? (d.critLegenda || "");
+      /* orientações do que escrever na imagem, descrições do post e conteúdo por formato */
+      const critImagemFrases = d.critImagemFrases || [
+        "[Resultado principal] em [tempo]", "Sem [maior objeção]", "[Nº] + [entregável] por [preço]",
+        "Pare de [erro comum]", "[Público], isso é pra você",
+      ];
+      const critDescricoes = d.critDescricoes || [
+        "Abra com a dor nas palavras do público, apresente a promessa e feche com CTA + preço.",
+        "Conte uma micro-história de antes/depois e aponte pro link.",
+        "Liste 3 coisas que a pessoa vai conseguir fazer e feche com o preço âncora.",
+      ];
+      const critNaoPodeFaltar = d.critNaoPodeFaltar || [
+        "Headline grande e legível no mobile", "A MESMA promessa da landing page", "Preço com âncora (de → por)",
+        "CTA explícito (link na bio / arrasta pra cima)", "Prova real (print, número, resultado)",
+      ];
+      const critCarrossel = d.critCarrossel || [
+        { titulo: "Card 1 — gancho", texto: "A headline vencedora, grande, com fundo de alto contraste." },
+        { titulo: "Card 2 — dor", texto: "Espelhe a dor principal nas palavras do público." },
+        { titulo: "Card 3 — virada", texto: "Apresente o produto como o caminho — o que é, em uma frase." },
+        { titulo: "Card 4 — prova", texto: "Print/número/resultado que sustenta a promessa." },
+        { titulo: "Card 5 — CTA", texto: "Oferta + preço âncora + \"arrasta pra cima / link na bio\"." },
+      ];
+      const critVideoRoteiro = d.critVideoRoteiro || "GANCHO (0-3s): a headline falada olhando pra câmera.\nDOR (3-10s): a dor principal, nas palavras do público.\nVIRADA (10-20s): o produto — o que é e o que entrega.\nPROVA (20-28s): um número, print ou resultado.\nCTA (28-35s): oferta + preço + onde clicar. Legendado, vertical 9:16.";
       const critFormatoRecs = {
         carrossel: "3-5 cards. Card 1 = headline (a mesma da LP). Cards do meio = dor → prova → como funciona, um por card. Último card = CTA claro (\"arrasta pra cima / chama no link\").",
         video: "Gancho nos 3 primeiros segundos (a headline falada). Depois: dor → transformação → prova rápida → CTA. Legendado, vertical 9:16, até 30-45s.",
@@ -1155,6 +1390,60 @@ class Component extends DCLogic {
       const concluirPublicacao = () => {
         setDoc({ publicado: true });
         this.setState({ items: this.state.items.map(x => x.id === mItem.id ? { ...x, col: "publicados", nota: "no ar agora" } : x) });
+      };
+
+      /* ---- JSON do produto: molde vivo pra gerar novos produtos no Claude ----
+         Montado a partir dos MESMOS dados que os modais renderizam — se os modais
+         ganharem campos novos, adicione-os aqui também pra manter o molde em dia. */
+      const jsonProduto = {
+        _oQueEIsto: "Molde de produto-curso da Máquina de Low Ticket. Os valores preenchidos são um exemplo real do nível de detalhe esperado.",
+        _instrucoes: [
+          "Copie este JSON inteiro, cole no Claude e diga qual novo produto-curso quer criar (tema, público, preço).",
+          "O Claude deve devolver ESTE MESMO JSON preenchido pro novo produto — mesmas chaves, mesmos tipos, sem comentários.",
+          "publico: preencha os 6 campos pensando numa pessoa real; objecoes entre aspas, separadas por vírgula.",
+          "landingPage.headlines: SEMPRE 10 opções com ângulos variados (resultado, objeção, contraintuitivo, prova, urgência, público, preço, tempo).",
+          "landingPage.blocos: um item por bloco da página, com orientacao (como escrever) e conteudo (a copy completa do bloco).",
+          "criativo.frasesImagem: 10 frases CURTAS pra escrever NA imagem do anúncio (máx. 8-10 palavras cada).",
+          "criativo.descricoes: 10 legendas/descrições DIFERENTES pro post, prontas pra publicar.",
+          "criativo.carrossel: conteúdo card a card; criativo.roteiroVideo: roteiro completo com marcação de tempo.",
+          "material.estrutura: 10-12 partes; material.conteudo: escreva o material na íntegra, parte por parte.",
+          "Pra subir na máquina: botão Novo produto → Subir com IA → cole o JSON devolvido → Processar e criar card.",
+        ],
+        produto: { nome: mItem.nome, formato: (mItem.grupo || "Curso completo").split("·")[0].trim(), preco, nivelEsforco: mItem.nivel || "N2", prazoDias: mItem.prazo ?? 30 },
+        publico: { quem: pubData.quem, dor: pubData.dor, desejo: pubData.desejo, objecoes: pubData.objecoes, canais: pubData.canais, tom: pubData.tom },
+        promessa: d.promessa || "",
+        dimensionamento: d.tier || "Enxuto · 4-5 partes · 20-30 pág.",
+        material: {
+          estrutura: estruturaRaw.map(r => ({ parte: r[0], paginas: r[1] })),
+          conteudo: conteudo,
+        },
+        landingPage: {
+          estrutura: lpEstruturaArr,
+          headlines: lpHeadlinesArr.filter(h => !h.riscada).map(h => h.texto),
+          blocos: lpEstruturaArr.map(label => { const b = lpBlocosDe(label); return { bloco: label, orientacao: b.orientacao, conteudo: b.conteudo }; }),
+        },
+        criativo: {
+          frasesImagem: critImagemFrases,
+          descricoes: critDescricoes,
+          naoPodeFaltar: critNaoPodeFaltar,
+          carrossel: critCarrossel,
+          roteiroVideo: critVideoRoteiro,
+          frasesApoio: critApoio,
+          legenda: critLegenda,
+        },
+      };
+      const copiarJson = () => {
+        const txt = JSON.stringify(jsonProduto, null, 2);
+        const fallbackCopy = () => {
+          const ta = document.createElement("textarea");
+          ta.value = txt; ta.style.position = "fixed"; ta.style.opacity = "0";
+          document.body.appendChild(ta); ta.select();
+          try { document.execCommand("copy"); } catch (e) { /* sem clipboard */ }
+          ta.remove();
+        };
+        try { navigator.clipboard.writeText(txt).catch(fallbackCopy); } catch (e) { fallbackCopy(); }
+        this.setState({ jsonCopiado: true });
+        setTimeout(() => { if (this.state.jsonCopiado) this.setState({ jsonCopiado: false }); }, 2200);
       };
 
       md = {
@@ -1185,6 +1474,15 @@ class Component extends DCLogic {
         critApoio, onCritApoio: (e) => setDoc({ critApoio: e.target.value }),
         critLegenda, onCritLegenda: (e) => setDoc({ critLegenda: e.target.value }),
         criativosList, temCriativo: criativosList.length > 0, onCriativoUpload,
+        critFrasesImagem: critImagemFrases.map((t, i) => ({ n: pad2(i + 1), texto: t })),
+        critDescricoesList: critDescricoes.map((t, i) => ({ n: pad2(i + 1), texto: t })),
+        critNaoPodeFaltarList: critNaoPodeFaltar.map(label => ({ label })),
+        critCarrosselCards: critCarrossel.map((c, i) => ({ n: pad2(i + 1), titulo: c.titulo || "Card " + (i + 1), texto: c.texto || "" })),
+        critRoteiroVideo: critVideoRoteiro,
+        copiarJson,
+        jsonLabel: this.state.jsonCopiado ? "JSON copiado ✓" : "JSON p/ Claude",
+        jsonBg: this.state.jsonCopiado ? "#143A36" : "#232327",
+        jsonFg: this.state.jsonCopiado ? "#3EE0CC" : "#A8A8AE",
         critRecTexto: critFormatoRecs[critTab],
         goCritCarrossel: () => this.setState({ critTab: "carrossel" }),
         goCritVideo: () => this.setState({ critTab: "video" }),
@@ -1240,6 +1538,37 @@ class Component extends DCLogic {
         desc = this.state.novoDesc.trim();
         grupo = "Anotação · triagem";
       } else {
+        /* JSON do molde (botão "JSON p/ Claude" no card) → produto completo direto na Estruturação */
+        const txt = this.state.novoTexto.trim();
+        let j = null;
+        if (txt.startsWith("{")) { try { j = JSON.parse(txt); } catch (e) { j = null; } }
+        if (j && j.produto && j.produto.nome) {
+          const id = this.state.nextId;
+          const pub = j.publico || {}, mat = j.material || {}, lp = j.landingPage || {}, cr = j.criativo || {};
+          const detNovo = {
+            publico: pub.quem || "", dor: pub.dor || "", desejo: pub.desejo || "",
+            objecoes: pub.objecoes || "", canais: pub.canais || "", tom: pub.tom || "",
+            promessa: j.promessa || "", tier: j.dimensionamento || "",
+            estrutura: (mat.estrutura || []).map(e => [e.parte || String(e), e.paginas || "", false]),
+            conteudo: mat.conteudo || "",
+            headlines: (lp.headlines || []).map(t => [t, false]),
+            lpBlocos: lp.blocos || [],
+            lpEstruturaCustom: Array.isArray(lp.estrutura) && lp.estrutura.length ? lp.estrutura : null,
+            critImagemFrases: cr.frasesImagem || null, critDescricoes: cr.descricoes || null,
+            critNaoPodeFaltar: cr.naoPodeFaltar || null, critCarrossel: cr.carrossel || null,
+            critVideoRoteiro: cr.roteiroVideo || null,
+            critApoio: cr.frasesApoio || "", critLegenda: cr.legenda || "",
+          };
+          const precoJ = j.produto.preco || "R$ 47";
+          this.setState({
+            items: [{ id, col: "estrut", nome: String(j.produto.nome).slice(0, 90), grupo: (j.produto.formato || "Curso completo") + " · low ticket " + precoJ, nivel: j.produto.nivelEsforco || "N2", chk: [0, 3], prazo: j.produto.prazoDias || 30 }, ...this.state.items],
+            detExtra: { ...this.state.detExtra, [id]: detNovo },
+            nextId: id + 1,
+            novo: false, novoTitulo: "", novoDesc: "", novoTexto: "", novoArquivo: "",
+            modal: id, modalTab: "visao", lpExp: {}, jsonCopiado: false,
+          });
+          return;
+        }
         const linhas = this.state.novoTexto.split("\n").map(l => l.trim()).filter(Boolean);
         nome = (linhas[0] || "Produto importado").replace(/^#+\s*/, "").replace(/\*\*/g, "").slice(0, 80);
         desc = linhas.slice(1).join(" ").replace(/[#*>`]/g, "").slice(0, 240);

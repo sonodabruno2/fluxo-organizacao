@@ -643,8 +643,14 @@ body { font-family: "Geist", "SF Pro Text", system-ui, sans-serif; color: #F4F4F
   &quot;alertaPrazoDias&quot;: { &quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 5, &quot;min&quot;: 1, &quot;max&quot;: 21, &quot;unit&quot;: &quot;dias&quot;, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Prazos&quot;, &quot;description&quot;: &quot;Prazos a essa distância ficam âmbar&quot; },
   &quot;mostrarDescartadas&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Catálogo&quot;, &quot;description&quot;: &quot;Exibir ideias descartadas na coluna de triagem&quot; }
 }">
+// Persistência: quadro salvo no navegador (localStorage). Ao mudar os dados
+// embutidos abaixo (items/DET), aumente DATA_VERSION pra descartar saves antigos.
+const SAVE_KEY = "fluxo_kanban_save";
+const DATA_VERSION = 1;
+
 class Component extends DCLogic {
-  state = {
+  state = (() => {
+    const base = {
     modal: null, modalTab: "visao",
     novo: false, novoTab: "manual", novoTitulo: "", novoDesc: "", novoTexto: "", novoArquivo: "", nextId: 100,
     lixeira: false, confirmaExcluir: false, confirmaEsvaziar: false,
@@ -686,13 +692,26 @@ class Component extends DCLogic {
       { id: 62, col: "publicados", nome: "Pack de mockups de embalagem", grupo: "ZIP · R$ 27", nota: "no ar desde 3 jun" },
       { id: 63, col: "publicados", nome: "Checklist de enxoval de bebê", grupo: "PDF · R$ 17", nota: "no ar desde 28 mai" },
     ],
-  };
+    };
+    try {
+      const s = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+      if (s && s.v === DATA_VERSION && Array.isArray(s.items)) {
+        base.items = s.items;
+        base.docs = s.docs || {};
+        base.nextId = s.nextId || base.nextId;
+      }
+    } catch (e) { /* save corrompido: segue com os dados embutidos */ }
+    return base;
+  })();
 
   mover(id, col, extra) {
     this.setState({ items: this.state.items.map(x => x.id === id ? { ...x, col, ...(extra || {}) } : x) });
   }
 
   renderVals() {
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({ v: DATA_VERSION, items: this.state.items, docs: this.state.docs, nextId: this.state.nextId }));
+    } catch (e) { /* navegação privada/sem espaço: segue sem salvar */ }
     const alertaDias = this.props.alertaPrazoDias ?? 5;
     const mostrarDescartadas = this.props.mostrarDescartadas ?? true;
     const nivelFg = (n) => n === "N1" ? "#3EE0CC" : n === "N4" ? "#FF8A65" : "#6E6E74";

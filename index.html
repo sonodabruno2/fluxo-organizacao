@@ -259,27 +259,27 @@ svg { pointer-events: none; }
         <div style="width: 195px; flex: none; padding: 16px 12px; border-right: 1px solid #232327; display: flex; flex-direction: column; gap: 4px;">
           <span onClick="{{ nav.govisao }}" style="position: relative; display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 500; padding: 9px 12px; border-radius: 10px; cursor: pointer; color: {{ nav.visaoFg }};">
             <sc-if value="{{ navVisao }}"><span style="position: absolute; inset: 0; border-radius: 10px; background: #26262B;"></span></sc-if>
-            <span style="position: relative; width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid {{ nav.visaoBoxBorder }}; background: {{ nav.visaoBoxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none;"><sc-if value="{{ nav.visaoDone }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if></span>
+            <span onClick="{{ nav.togglevisao }}" title="concluir/reabrir esta etapa" style="position: relative; width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid {{ nav.visaoBoxBorder }}; background: {{ nav.visaoBoxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none; cursor: pointer;"><sc-if value="{{ nav.visaoDone }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if></span>
             <span style="position: relative;">Overview</span>
           </span>
           <span onClick="{{ nav.gomaterial }}" style="position: relative; display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 500; padding: 9px 12px; border-radius: 10px; cursor: pointer; color: {{ nav.materialFg }};">
             <sc-if value="{{ navMaterial }}"><span style="position: absolute; inset: 0; border-radius: 10px; background: #26262B;"></span></sc-if>
-            <span style="position: relative; width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid {{ nav.materialBoxBorder }}; background: {{ nav.materialBoxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none;"><sc-if value="{{ nav.materialDone }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if></span>
+            <span onClick="{{ nav.togglematerial }}" title="concluir/reabrir esta etapa" style="position: relative; width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid {{ nav.materialBoxBorder }}; background: {{ nav.materialBoxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none; cursor: pointer;"><sc-if value="{{ nav.materialDone }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if></span>
             <span style="position: relative;">Material</span>
           </span>
           <span onClick="{{ nav.golp }}" style="position: relative; display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 500; padding: 9px 12px; border-radius: 10px; cursor: pointer; color: {{ nav.lpFg }};">
             <sc-if value="{{ navLp }}"><span style="position: absolute; inset: 0; border-radius: 10px; background: #26262B;"></span></sc-if>
-            <span style="position: relative; width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid {{ nav.lpBoxBorder }}; background: {{ nav.lpBoxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none;"><sc-if value="{{ nav.lpDone }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if></span>
+            <span onClick="{{ nav.togglelp }}" title="concluir/reabrir esta etapa" style="position: relative; width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid {{ nav.lpBoxBorder }}; background: {{ nav.lpBoxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none; cursor: pointer;"><sc-if value="{{ nav.lpDone }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if></span>
             <span style="position: relative;">Página de vendas</span>
           </span>
           <span onClick="{{ nav.gocriativo }}" style="position: relative; display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 500; padding: 9px 12px; border-radius: 10px; cursor: pointer; color: {{ nav.criativoFg }};">
             <sc-if value="{{ navCriativo }}"><span style="position: absolute; inset: 0; border-radius: 10px; background: #26262B;"></span></sc-if>
-            <span style="position: relative; width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid {{ nav.criativoBoxBorder }}; background: {{ nav.criativoBoxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none;"><sc-if value="{{ nav.criativoDone }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if></span>
+            <span onClick="{{ nav.togglecriativo }}" title="concluir/reabrir esta etapa" style="position: relative; width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid {{ nav.criativoBoxBorder }}; background: {{ nav.criativoBoxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none; cursor: pointer;"><sc-if value="{{ nav.criativoDone }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if></span>
             <span style="position: relative;">Criativo</span>
           </span>
           <span onClick="{{ nav.gopub }}" style="position: relative; display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 500; padding: 9px 12px; border-radius: 10px; cursor: pointer; color: {{ nav.pubFg }};">
             <sc-if value="{{ navPub }}"><span style="position: absolute; inset: 0; border-radius: 10px; background: #26262B;"></span></sc-if>
-            <span style="position: relative; width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid {{ nav.pubBoxBorder }}; background: {{ nav.pubBoxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none;"><sc-if value="{{ nav.pubDone }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if></span>
+            <span onClick="{{ nav.togglepub }}" title="concluir/reabrir esta etapa" style="position: relative; width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid {{ nav.pubBoxBorder }}; background: {{ nav.pubBoxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none; cursor: pointer;"><sc-if value="{{ nav.pubDone }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if></span>
             <span style="position: relative;">Publicação</span>
           </span>
           <span style="flex: 1;"></span>
@@ -1761,6 +1761,14 @@ class Component extends DCLogic {
         criativo: abaCompleta("criativo"),
         pub: abaCompleta("pub"),
       };
+      /* clicar no check do menu conclui/reabre a aba inteira (marca todos os itens dela) */
+      const toggleAba = (key) => (e) => {
+        if (e && e.stopPropagation) e.stopPropagation();
+        const alvo = !abaCompleta(key);
+        const novoCheck = { ...checkOv };
+        abaItens[key].forEach(([k]) => { novoCheck[k] = alvo; });
+        this.setState({ docs: { ...this.state.docs, [mItem.id]: { ...(this.state.docs[mItem.id] || {}), check: novoCheck } } });
+      };
       const navIds = [["visao", "Overview"], ["material", "Material"], ["lp", "Página de vendas"], ["criativo", "Criativo"], ["pub", "Publicação"]];
       navMeta = {};
       navIds.forEach(([id]) => {
@@ -1769,6 +1777,7 @@ class Component extends DCLogic {
         navMeta[id + "BoxBorder"] = tabDone[id] ? "#3EE0CC" : "#3A3A40";
         navMeta[id + "BoxBg"] = tabDone[id] ? "#3EE0CC" : "transparent";
         navMeta["go" + id] = () => this.setState({ modalTab: id });
+        navMeta["toggle" + id] = toggleAba(id);
       });
     }
 

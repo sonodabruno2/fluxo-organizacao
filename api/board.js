@@ -6,7 +6,7 @@
 // Blob store ao projeto). Opcional: BOARD_SECRET — se definida, exige o header
 // x-board-key igual pra ler/gravar (proteção "leve", igual ao portão de senha).
 
-const { put, list } = require("@vercel/blob");
+const { put, list, del } = require("@vercel/blob");
 
 const KEY = "board.json";
 
@@ -42,11 +42,7 @@ module.exports = async (req, res) => {
     if (provided !== secret) { res.status(401).json({ error: "nao-autorizado" }); return; }
   }
   const token = getBlobToken();
-  if (!token) {
-    const blobKeys = Object.keys(process.env).filter((x) => x.includes("BLOB"));
-    res.status(503).json({ error: "blob-store-nao-configurado", envBlobKeys: blobKeys });
-    return;
-  }
+  if (!token) { res.status(503).json({ error: "blob-store-nao-configurado" }); return; }
 
   try {
     if (req.method === "GET") {
@@ -65,6 +61,12 @@ module.exports = async (req, res) => {
         access: "public", token, addRandomSuffix: false, allowOverwrite: true,
         contentType: "application/json", cacheControlMaxAge: 0,
       });
+      res.status(200).json({ ok: true });
+      return;
+    }
+    if (req.method === "DELETE") {
+      const { blobs } = await list({ prefix: KEY, limit: 1, token });
+      if (blobs.length) await del(blobs[0].url, { token });
       res.status(200).json({ ok: true });
       return;
     }

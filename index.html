@@ -492,6 +492,16 @@ svg { pointer-events: none; }
 
           <!-- ===== Página de vendas ===== -->
           <sc-if value="{{ tabLP }}">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; background: #0C0C0E; border-radius: 14px; padding: 14px 16px;">
+              <div style="min-width: 0;">
+                <div style="font-size: 13px; font-weight: 500;">Criar a landing page com IA</div>
+                <div style="font-size: 11.5px; color: #6E6E74; line-height: 1.5; margin-top: 3px;">Copia um briefing com tudo do curso (público, promessa, headlines, blocos, material anexado) + a estrutura da página. Cole no Claude pra gerar a LP com design de alto nível.</div>
+              </div>
+              <span onClick="{{ md.copiarJsonLP }}" title="Copia o briefing JSON desta landing page — inclui os dados do curso e o material anexado" style="display: inline-flex; align-items: center; gap: 7px; font-family: inherit; font-weight: 500; font-size: 12px; padding: 10px 15px; border-radius: 9999px; background: {{ md.jsonLPBg }}; color: {{ md.jsonLPFg }}; cursor: pointer; white-space: nowrap; flex: none; transition: background 140ms;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                {{ md.jsonLPLabel }}
+              </span>
+            </div>
             <div>
               <div style="font-size: 13.5px; font-weight: 500; margin-bottom: 4px;">Link da landing page</div>
               <div style="font-size: 12px; color: #6E6E74; margin-bottom: 10px; line-height: 1.5;">A LP é gerada inteira e publicada como one page — cole o link aqui pra armazenar e ver o preview.</div>
@@ -813,7 +823,7 @@ class Component extends DCLogic {
     novo: false, novoTab: "manual", novoTitulo: "", novoDesc: "", novoTexto: "", novoArquivo: "", nextId: 100,
     lixeira: false, confirmaExcluir: false, confirmaEsvaziar: false,
     matTab: "estrutura", docs: {}, detExtra: {}, critTab: "carrossel", newStep: "", newHeadline: "",
-    lpExp: {}, jsonCopiado: false, syncStatus: "idle", uploadingFile: false, editandoNome: false, nomeRascunho: "",
+    lpExp: {}, jsonCopiado: false, jsonLPCopiado: false, syncStatus: "idle", uploadingFile: false, editandoNome: false, nomeRascunho: "",
     items: [
       // catálogo · ideias (etiquetas catalogo/estudar/descartado)
       { id: 6,  col: "ideias", nome: "Ebook de precificação pra freelancer", grupo: "Nível 2 · com estruturação", nivel: "N2", tag: "catalogo" },
@@ -951,7 +961,7 @@ class Component extends DCLogic {
       this._dragId = i.id;
       if (e && e.dataTransfer) { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", String(i.id)); }
     };
-    const open = (i) => () => this.setState({ modal: i.id, modalTab: "visao", matTab: "estrutura", confirmaExcluir: false, lpExp: {}, jsonCopiado: false, editandoNome: false });
+    const open = (i) => () => this.setState({ modal: i.id, modalTab: "visao", matTab: "estrutura", confirmaExcluir: false, lpExp: {}, jsonCopiado: false, jsonLPCopiado: false, editandoNome: false });
 
     /* Progresso do produto (0-100) — MESMA lógica do checklist do modal (grpDefs/autoDone).
        Se mudar as regras de progresso no modal, replicar aqui. Usa DET (definido adiante),
@@ -1677,6 +1687,40 @@ class Component extends DCLogic {
         setTimeout(() => { if (this.state.jsonCopiado) this.setState({ jsonCopiado: false }); }, 2200);
       };
 
+      /* ---- Briefing JSON pra CRIAR a landing page no Claude Design ---- */
+      const jsonLandingPage = {
+        _oQueEIsto: "Briefing completo pra você (Claude) CRIAR a landing page de venda (one page) deste produto, com design de alto nível e foco em conversão.",
+        _instrucoes: [
+          "Entregue uma landing page one-page COMPLETA e pronta pra publicar (HTML+CSS autossuficiente, responsivo/mobile-first), com visual de alto nível.",
+          "Use EXATAMENTE a promessaCentral e o tomDeVoz. Fale direto com o publico (dor, desejo, objeções) — nada genérico.",
+          "Monte as seções na ORDEM de 'estrutura'. Em cada seção use a 'orientacao' (o que comunicar) e o 'conteudo' (copy planejada) — pode lapidar a copy, mas mantenha a mensagem e a promessa.",
+          "Topo: use a headline mais forte de 'headlines'; as demais servem de sub-heads/reforços.",
+          "CTAs claros e repetidos levando ao checkout (linkCheckout); ancore o preço quando houver (de/por).",
+          "material.arquivo é o produto entregue (ebook/guia low ticket) — use como contexto do que a pessoa recebe; material.conteudo traz o texto do material pra você entender a profundidade e extrair benefícios reais.",
+          "Design: hierarquia visual forte, seções bem separadas, respiro, prova e urgência HONESTAS, tipografia caprichada, imagens leves. Sem placeholder de lorem ipsum — escreva a copy de verdade.",
+        ],
+        produto: { nome: mItem.nome, formato: (mItem.grupo || "Curso completo").split("·")[0].trim(), preco },
+        publico: { quem: pubData.quem, dor: pubData.dor, desejo: pubData.desejo, objecoes: pubData.objecoes, tomDeVoz: pubData.tom, canais: pubData.canais },
+        promessaCentral: d.promessa || (lpHeadlinesArr.filter(h => !h.riscada)[0] || {}).texto || "",
+        headlines: lpHeadlinesArr.filter(h => !h.riscada).map(h => h.texto),
+        estrutura: lpEstruturaArr.map(label => { const b = lpBlocosDe(label); return { secao: label, orientacao: b.orientacao, conteudo: b.conteudo }; }),
+        material: { arquivo: arquivoNome || null, arquivoUrl: arquivoUrl || null, conteudo: conteudo || "" },
+        linkCheckout: (doc.checkout ?? (mItem.checkout || "")) || "definir",
+      };
+      const copiarJsonLP = () => {
+        const txt = JSON.stringify(jsonLandingPage, null, 2);
+        const fallbackCopy = () => {
+          const ta = document.createElement("textarea");
+          ta.value = txt; ta.style.position = "fixed"; ta.style.opacity = "0";
+          document.body.appendChild(ta); ta.select();
+          try { document.execCommand("copy"); } catch (e) { /* sem clipboard */ }
+          ta.remove();
+        };
+        try { navigator.clipboard.writeText(txt).catch(fallbackCopy); } catch (e) { fallbackCopy(); }
+        this.setState({ jsonLPCopiado: true });
+        setTimeout(() => { if (this.state.jsonLPCopiado) this.setState({ jsonLPCopiado: false }); }, 2200);
+      };
+
       /* ---- editar o nome do produto inline (clica no título, Enter salva) ---- */
       const salvarNome = () => {
         const novo = (this.state.nomeRascunho || "").trim();
@@ -1733,6 +1777,10 @@ class Component extends DCLogic {
         jsonLabel: this.state.jsonCopiado ? "JSON copiado ✓" : "JSON usa o já preenchido",
         jsonBg: this.state.jsonCopiado ? "#143A36" : "#232327",
         jsonFg: this.state.jsonCopiado ? "#3EE0CC" : "#A8A8AE",
+        copiarJsonLP,
+        jsonLPLabel: this.state.jsonLPCopiado ? "Briefing copiado ✓" : "Copiar briefing p/ Claude Design",
+        jsonLPBg: this.state.jsonLPCopiado ? "#143A36" : "#F4F4F5",
+        jsonLPFg: this.state.jsonLPCopiado ? "#3EE0CC" : "#0A0A0A",
         critRecTexto: critFormatoRecs[critTab],
         goCritCarrossel: () => this.setState({ critTab: "carrossel" }),
         goCritVideo: () => this.setState({ critTab: "video" }),

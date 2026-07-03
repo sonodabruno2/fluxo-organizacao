@@ -222,7 +222,7 @@ svg { pointer-events: none; }
 
       <!-- Modal header -->
       <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 24px 28px 18px; background: #1C1C20; border-bottom: 1px solid #26262B; flex: none;">
-        <div style="min-width: 0;">
+        <div style="min-width: 0; flex: 1;">
           <div style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: #6E6E74; margin-bottom: 6px;">{{ md.trilhaLabel }}</div>
           <sc-if value="{{ md.editandoNome }}">
             <input value="{{ md.nomeRascunho }}" onChange="{{ md.onNomeInput }}" onKeyDown="{{ md.onNomeKey }}" onBlur="{{ md.salvarNome }}" class="nome-edit-input" style="font-size: 21px; font-weight: 500; letter-spacing: -0.014em; line-height: 1.25; color: #F4F4F5; background: #121214; border: 1px solid #3A3A40; border-radius: 8px; padding: 3px 8px; outline: 0; width: 100%; box-sizing: border-box; font-family: inherit;">

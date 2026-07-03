@@ -431,18 +431,33 @@ svg { pointer-events: none; }
             <!-- Material · Arquivo pronto -->
             <sc-if value="{{ matArquivo }}">
               <div style="font-size: 13.5px; font-weight: 500;">Arquivo pronto</div>
-              <div style="font-size: 12px; color: #6E6E74; margin-top: -8px; line-height: 1.5;">Armazene o material finalizado (PDF, ZIP, planilha…) pronto pra entrega no bot.</div>
+              <div style="font-size: 12px; color: #6E6E74; margin-top: -8px; line-height: 1.5;">Suba o material finalizado (PDF, ZIP, planilha…). Ao subir, esta etapa é dada como concluída. Máx. ~3MB.</div>
               <sc-if value="{{ md.arquivoOk }}">
-                <div style="border: 1.5px solid #2A2A2E; border-radius: 14px; padding: 16px; display: flex; align-items: center; gap: 12px; background: #1A1A1D;">
+                <div style="border: 1.5px solid #2A2A2E; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; background: #1A1A1D;">
                   <span style="width: 40px; height: 40px; border-radius: 10px; background: #143A36; color: #3EE0CC; display: inline-flex; align-items: center; justify-content: center; flex: none;">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg>
                   </span>
-                  <div style="flex: 1; min-width: 0;">
-                    <div style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: #F4F4F5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ md.arquivoNome }}</div>
-                    <div style="font-size: 11px; color: #6E6E74; margin-top: 3px;">armazenado · pronto pra entrega</div>
+                  <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px;">
+                    <input value="{{ md.arquivoNome }}" onChange="{{ md.onArquivoNome }}" placeholder="nome-do-arquivo.pdf" style="border: 1px solid #2A2A2E; background: #121214; border-radius: 8px; padding: 7px 10px; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: #F4F4F5; outline: 0; width: 100%; box-sizing: border-box;">
+                    <span style="font-size: 11px; color: #6E6E74;">edite o nome — o download já sai com ele</span>
                   </div>
+                  <sc-if value="{{ md.temArquivoUrl }}">
+                    <a href="{{ md.arquivoHref }}" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; font-weight: 500; font-size: 11.5px; padding: 9px 14px; border-radius: 9999px; background: #143A36; color: #3EE0CC; flex: none;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>Baixar
+                    </a>
+                  </sc-if>
                   <span onClick="{{ md.removerArquivo }}" style="font-size: 11.5px; font-weight: 500; color: #F472B6; cursor: pointer; padding: 6px 10px; border-radius: 9999px; flex: none; transition: background 140ms;" style-hover="background: #2A1620;">Remover</span>
                 </div>
+                <sc-if value="{{ md.semArquivoUrl }}">
+                  <label style="border: 1px dashed #4A3A20; border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; background: #17140C; cursor: pointer;" style-hover="border-color: #FFC78A;">
+                    <input type="file" onChange="{{ md.onArquivo }}" style="display: none;">
+                    <span style="color: #FFC78A; flex: none; display: inline-flex;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3"></path><path d="m6 9 6-6 6 6"></path><path d="M5 21h14"></path></svg></span>
+                    <span style="font-size: 12px; color: #FFC78A; line-height: 1.4;">Este arquivo tinha só o nome salvo (versão antiga). Clique aqui pra reenviá-lo e liberar o download.</span>
+                  </label>
+                </sc-if>
+              </sc-if>
+              <sc-if value="{{ md.arquivoEnviando }}">
+                <div style="border: 1.5px solid #2A2A2E; border-radius: 14px; padding: 18px; text-align: center; color: #FFC78A; font-size: 12.5px; background: #121214;">Enviando arquivo…</div>
               </sc-if>
               <sc-if value="{{ md.arquivoPend }}">
                 <label style="border: 1.5px dashed #3A3A40; border-radius: 14px; padding: 22px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; background: #121214; cursor: pointer; text-align: center;" style-hover="border-color: #6E6E74;">
@@ -451,24 +466,23 @@ svg { pointer-events: none; }
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3"></path><path d="m6 9 6-6 6 6"></path><path d="M5 21h14"></path></svg>
                   </span>
                   <span style="font-size: 12.5px; font-weight: 500; color: #A8A8AE;">Arraste o arquivo ou clique pra enviar</span>
-                  <span style="font-size: 11px; color: #6E6E74;">PDF, ZIP, planilha — qualquer formato de entrega</span>
+                  <span style="font-size: 11px; color: #6E6E74;">PDF, ZIP, planilha — até ~3MB</span>
                 </label>
               </sc-if>
-            </sc-if>
 
-            <div>
-              <div style="font-size: 13.5px; font-weight: 500; margin-bottom: 2px;">Checklist desta etapa</div>
-              <div style="font-size: 11.5px; color: #6E6E74; line-height: 1.5; margin-bottom: 4px;">Marque o que já está pronto — conta no progresso do card.</div>
-              <sc-for list="{{ md.chkMaterial }}" as="c" hint-placeholder-count="3">
-                <div onClick="{{ c.toggle }}" style="display: flex; align-items: center; gap: 11px; padding: 9px 0; border-top: 1px solid #232327; cursor: pointer;">
-                  <span style="width: 17px; height: 17px; border-radius: 5px; border: 1.5px solid {{ c.boxBorder }}; background: {{ c.boxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none;">
-                    <sc-if value="{{ c.done }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if>
-                  </span>
-                  <span style="font-size: 13px; color: {{ c.fg }}; flex: 1;">{{ c.label }}</span>
-                  <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: {{ c.stateFg }};">{{ c.state }}</span>
-                </div>
-              </sc-for>
-            </div>
+              <div>
+                <div style="font-size: 13.5px; font-weight: 500; margin-bottom: 2px;">Checklist desta etapa</div>
+                <sc-for list="{{ md.chkArquivo }}" as="c" hint-placeholder-count="1">
+                  <div onClick="{{ c.toggle }}" style="display: flex; align-items: center; gap: 11px; padding: 9px 0; border-top: 1px solid #232327; cursor: pointer;">
+                    <span style="width: 17px; height: 17px; border-radius: 5px; border: 1.5px solid {{ c.boxBorder }}; background: {{ c.boxBg }}; display: inline-flex; align-items: center; justify-content: center; color: #0A0A0A; flex: none;">
+                      <sc-if value="{{ c.done }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-11"></path></svg></sc-if>
+                    </span>
+                    <span style="font-size: 13px; color: {{ c.fg }}; flex: 1;">{{ c.label }}</span>
+                    <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; color: {{ c.stateFg }};">{{ c.state }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
           </sc-if>
 
           <!-- ===== Página de vendas ===== -->
@@ -794,7 +808,7 @@ class Component extends DCLogic {
     novo: false, novoTab: "manual", novoTitulo: "", novoDesc: "", novoTexto: "", novoArquivo: "", nextId: 100,
     lixeira: false, confirmaExcluir: false, confirmaEsvaziar: false,
     matTab: "estrutura", docs: {}, detExtra: {}, critTab: "carrossel", newStep: "", newHeadline: "",
-    lpExp: {}, jsonCopiado: false, syncStatus: "idle",
+    lpExp: {}, jsonCopiado: false, syncStatus: "idle", uploadingFile: false,
     items: [
       // catálogo · ideias (etiquetas catalogo/estudar/descartado)
       { id: 6,  col: "ideias", nome: "Ebook de precificação pra freelancer", grupo: "Nível 2 · com estruturação", nivel: "N2", tag: "catalogo" },
@@ -1338,7 +1352,25 @@ class Component extends DCLogic {
       const conteudo = doc.conteudo ?? (d.conteudo || "");
       const palavras = conteudo.trim() ? conteudo.trim().split(/\s+/).length : 0;
       const arquivoNome = doc.arquivo ?? (mItem.arquivoMaterial || "");
-      const onArquivoMat = (e) => { const f = e.target.files && e.target.files[0]; if (f) setDoc({ arquivo: f.name }); };
+      const arquivoUrl = doc.arquivoUrl || "";
+      const mId = mItem.id;
+      const onArquivoMat = (e) => {
+        const f = e.target.files && e.target.files[0];
+        if (!f) return;
+        if (f.size > 3 * 1024 * 1024) { alert("Arquivo muito grande (máx. ~3MB por este método). Comprima o PDF ou me peça pra habilitar upload de arquivos maiores."); return; }
+        this.setState({ uploadingFile: true });
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataB64 = String(reader.result || "").split(",")[1] || "";
+          fetch("/api/file", { method: "POST", headers: { "content-type": "application/json", "x-board-key": this._apiKey() }, body: JSON.stringify({ id: mId, name: f.name, type: f.type, dataB64 }) })
+            .then((r) => r.ok ? r.json() : Promise.reject(new Error("falha no upload (" + r.status + ")")))
+            .then((j) => { this.setState({ uploadingFile: false }); setDoc({ arquivo: j.name || f.name, arquivoUrl: j.url }); })
+            .catch((err) => { this.setState({ uploadingFile: false }); alert("Não consegui enviar o arquivo: " + err.message + "\n(precisa estar no site publicado, com internet)"); });
+        };
+        reader.onerror = () => { this.setState({ uploadingFile: false }); alert("Não consegui ler o arquivo."); };
+        reader.readAsDataURL(f);
+      };
+      const arquivoHref = arquivoUrl ? ("/api/file?url=" + encodeURIComponent(arquivoUrl) + "&name=" + encodeURIComponent(arquivoNome || "arquivo")) : "";
       const matTab = this.state.matTab;
       const pillBg = (id) => matTab === id ? "#F4F4F5" : "transparent";
       const pillFg = (id) => matTab === id ? "#0A0A0A" : "#A8A8AE";
@@ -1449,12 +1481,11 @@ class Component extends DCLogic {
       const chkItemFor = (key, label) => { const done = checkOv[key] ?? autoDone[key]; return { label, done, state: done ? "ok" : "pendente", ...chkB(done), toggle: () => setCheck(key, !done) }; };
       const abaItens = {
         visao: [["pub_quem", "Público definido"], ["pub_dor", "Dor e promessa claras"]],
-        material: [["est_conteudo", "Conteúdo escrito"], ["est_material", "Material pronto e subido"], ["prod_hosp", "Material hospedado e entregando"]],
+        material: [["est_material", "Material subido e pronto pra entrega"]],
         lp: [["est_lp", "Página de vendas no ar"], ["prod_teste", "LP testada (3-4 variações)"], ["prod_veloc", "Velocidade medida"]],
         criativo: [["est_criativo", "Criativo pronto e aprovado"]],
         pub: [["pub_preco", "Preço definido"], ["pub_bot", "Publicado no bot"]],
       };
-      const chkMaterial = abaItens.material.map(([k, l]) => chkItemFor(k, l));
       const chkLP = abaItens.lp.map(([k, l]) => chkItemFor(k, l));
       const chkCriativo = abaItens.criativo.map(([k, l]) => chkItemFor(k, l));
       const chkPub = abaItens.pub.map(([k, l]) => chkItemFor(k, l));
@@ -1644,8 +1675,11 @@ class Component extends DCLogic {
         conteudo, onConteudo: (e) => setDoc({ conteudo: e.target.value }),
         conteudoContagem: palavras > 0 ? palavras + " palavras" : "vazio",
         conteudoContagemFg: palavras > 0 ? "#3EE0CC" : "#55555C",
-        arquivoOk: !!arquivoNome, arquivoPend: !arquivoNome, arquivoNome,
-        onArquivo: onArquivoMat, removerArquivo: () => setDoc({ arquivo: "" }),
+        arquivoOk: !!arquivoNome, arquivoPend: !arquivoNome && !this.state.uploadingFile, arquivoNome,
+        arquivoUrl, temArquivoUrl: !!arquivoUrl, semArquivoUrl: !!arquivoNome && !arquivoUrl, arquivoHref, arquivoEnviando: !!this.state.uploadingFile,
+        onArquivoNome: (e) => setDoc({ arquivo: e.target.value }),
+        chkArquivo: [chkItemFor("est_material", "Material subido e pronto pra entrega")],
+        onArquivo: onArquivoMat, removerArquivo: () => setDoc({ arquivo: "", arquivoUrl: "" }),
         lpLink, lpHref, lpTemLink: !!lpHref, lpSemLink: !lpHref,
         onLpLink: (e) => setDoc({ lpLink: e.target.value }),
         lpEstrutura, addStep, newStep: this.state.newStep, onNewStep: (e) => this.setState({ newStep: e.target.value }),
@@ -1654,7 +1688,7 @@ class Component extends DCLogic {
         critHeadlines: critHeadlinesTexto.map((t, i) => ({ n: pad2(i + 1), texto: t })),
         critApoio, onCritApoio: (e) => setDoc({ critApoio: e.target.value }),
         critLegenda, onCritLegenda: (e) => setDoc({ critLegenda: e.target.value }),
-        chkMaterial, chkLP, chkCriativo, chkPub,
+        chkLP, chkCriativo, chkPub,
         criativosList, temCriativo: criativosList.length > 0, onCriativoUpload,
         critFrasesImagem: critImagemFrases.map((t, i) => ({ n: pad2(i + 1), texto: t })),
         critDescricoesList: critDescricoes.map((t, i) => ({ n: pad2(i + 1), texto: t })),

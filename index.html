@@ -224,7 +224,12 @@ svg { pointer-events: none; }
       <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 24px 28px 18px; background: #1C1C20; border-bottom: 1px solid #26262B; flex: none;">
         <div style="min-width: 0;">
           <div style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: #6E6E74; margin-bottom: 6px;">{{ md.trilhaLabel }}</div>
-          <div style="font-size: 21px; font-weight: 500; letter-spacing: -0.014em; line-height: 1.25;">{{ md.nome }}</div>
+          <sc-if value="{{ md.editandoNome }}">
+            <input value="{{ md.nomeRascunho }}" onChange="{{ md.onNomeInput }}" onKeyDown="{{ md.onNomeKey }}" onBlur="{{ md.salvarNome }}" class="nome-edit-input" style="font-size: 21px; font-weight: 500; letter-spacing: -0.014em; line-height: 1.25; color: #F4F4F5; background: #121214; border: 1px solid #3A3A40; border-radius: 8px; padding: 3px 8px; outline: 0; width: 100%; box-sizing: border-box; font-family: inherit;">
+          </sc-if>
+          <sc-if value="{{ md.naoEditandoNome }}">
+            <div onClick="{{ md.iniciarEditarNome }}" title="clique pra editar o nome — Enter salva, Esc cancela" style="font-size: 21px; font-weight: 500; letter-spacing: -0.014em; line-height: 1.25; cursor: text; border-radius: 6px; padding: 1px 4px; margin-left: -4px;" style-hover="background: #1E1E22;">{{ md.nome }}</div>
+          </sc-if>
           <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
             <sc-for list="{{ md.chips }}" as="ch" hint-placeholder-count="3">
               <span style="display: inline-flex; align-items: center; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; font-weight: 500; padding: 4px 10px; border-radius: 8px; background: {{ ch.bg }}; color: {{ ch.fg }}; white-space: nowrap;">{{ ch.label }}</span>
@@ -808,7 +813,7 @@ class Component extends DCLogic {
     novo: false, novoTab: "manual", novoTitulo: "", novoDesc: "", novoTexto: "", novoArquivo: "", nextId: 100,
     lixeira: false, confirmaExcluir: false, confirmaEsvaziar: false,
     matTab: "estrutura", docs: {}, detExtra: {}, critTab: "carrossel", newStep: "", newHeadline: "",
-    lpExp: {}, jsonCopiado: false, syncStatus: "idle", uploadingFile: false,
+    lpExp: {}, jsonCopiado: false, syncStatus: "idle", uploadingFile: false, editandoNome: false, nomeRascunho: "",
     items: [
       // catálogo · ideias (etiquetas catalogo/estudar/descartado)
       { id: 6,  col: "ideias", nome: "Ebook de precificação pra freelancer", grupo: "Nível 2 · com estruturação", nivel: "N2", tag: "catalogo" },
@@ -946,7 +951,7 @@ class Component extends DCLogic {
       this._dragId = i.id;
       if (e && e.dataTransfer) { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", String(i.id)); }
     };
-    const open = (i) => () => this.setState({ modal: i.id, modalTab: "visao", matTab: "estrutura", confirmaExcluir: false, lpExp: {}, jsonCopiado: false });
+    const open = (i) => () => this.setState({ modal: i.id, modalTab: "visao", matTab: "estrutura", confirmaExcluir: false, lpExp: {}, jsonCopiado: false, editandoNome: false });
 
     /* Progresso do produto (0-100) — MESMA lógica do checklist do modal (grpDefs/autoDone).
        Se mudar as regras de progresso no modal, replicar aqui. Usa DET (definido adiante),
@@ -1672,8 +1677,23 @@ class Component extends DCLogic {
         setTimeout(() => { if (this.state.jsonCopiado) this.setState({ jsonCopiado: false }); }, 2200);
       };
 
+      /* ---- editar o nome do produto inline (clica no título, Enter salva) ---- */
+      const salvarNome = () => {
+        const novo = (this.state.nomeRascunho || "").trim();
+        if (novo && novo !== mItem.nome) {
+          this.setState({ items: this.state.items.map(x => x.id === mItem.id ? { ...x, nome: novo } : x), editandoNome: false });
+        } else {
+          this.setState({ editandoNome: false });
+        }
+      };
+      const iniciarEditarNome = () => this.setState({ editandoNome: true, nomeRascunho: mItem.nome }, () => setTimeout(() => { const el = document.querySelector(".nome-edit-input"); if (el) { el.focus(); el.select(); } }, 30));
+
       md = {
         nome: mItem.nome, trilhaLabel: colLabel[mItem.col], chips, campos, trilha,
+        editandoNome: this.state.editandoNome, naoEditandoNome: !this.state.editandoNome, nomeRascunho: this.state.nomeRascunho,
+        iniciarEditarNome, salvarNome,
+        onNomeInput: (e) => this.setState({ nomeRascunho: e.target.value }),
+        onNomeKey: (e) => { if (e.key === "Enter") { e.preventDefault(); salvarNome(); } else if (e.key === "Escape") { this.setState({ editandoNome: false }); } },
         checklistGrupos, publicoCampos, gerarComIA,
         progPct: progPctNum + "%", progLabel: progPctNum + "%", progCor, progCount: doneItens + "/" + totItens,
         tier: d.tier || "Enxuto · 4-5 partes · 20-30 pág.",

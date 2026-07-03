@@ -1,0 +1,7 @@
+{
+  "name": "fluxo-organizacao",
+  "private": true,
+  "dependencies": {
+    "@vercel/blob": "latest"
+  }
+}

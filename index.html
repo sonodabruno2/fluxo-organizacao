@@ -32,6 +32,7 @@ svg { pointer-events: none; }
     <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #6E6E74;">Esteira · da ideia ao publicado</span>
     <span style="flex: 1;"></span>
     <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: #A8A8AE;">{{ total }} produtos na máquina</span>
+    <span style="display: inline-flex; align-items: center; gap: 6px; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: {{ syncFg }};"><span style="width: 6px; height: 6px; border-radius: 9999px; background: {{ syncFg }};"></span>{{ syncLabel }}</span>
     <span onClick="{{ abrirLixeira }}" style="width: 34px; height: 34px; border-radius: 9999px; background: #1A1A1D; color: #A8A8AE; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; position: relative; flex: none; transition: background 140ms;" style-hover="background: #222226;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
       <sc-if value="{{ temLixo }}">
@@ -793,7 +794,7 @@ class Component extends DCLogic {
     novo: false, novoTab: "manual", novoTitulo: "", novoDesc: "", novoTexto: "", novoArquivo: "", nextId: 100,
     lixeira: false, confirmaExcluir: false, confirmaEsvaziar: false,
     matTab: "estrutura", docs: {}, detExtra: {}, critTab: "carrossel", newStep: "", newHeadline: "",
-    lpExp: {}, jsonCopiado: false,
+    lpExp: {}, jsonCopiado: false, syncStatus: "idle",
     items: [
       // catálogo · ideias (etiquetas catalogo/estudar/descartado)
       { id: 6,  col: "ideias", nome: "Ebook de precificação pra freelancer", grupo: "Nível 2 · com estruturação", nivel: "N2", tag: "catalogo" },
@@ -857,16 +858,60 @@ class Component extends DCLogic {
       }
     };
     window.addEventListener("keydown", this._onEsc);
+    this._initSync();
   }
 
   componentWillUnmount() {
     if (this._onEsc) window.removeEventListener("keydown", this._onEsc);
   }
 
-  renderVals() {
+  /* chave da API = senha digitada no portão (fica só no aparelho, nunca no repo) */
+  _apiKey() { try { return localStorage.getItem("fluxo_key") || ""; } catch (e) { return ""; } }
+
+  /* ao abrir: puxa o quadro do servidor; se o servidor ainda não tem nada, sobe o atual */
+  async _initSync() {
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify({ v: DATA_VERSION, items: this.state.items, docs: this.state.docs, detExtra: this.state.detExtra, nextId: this.state.nextId }));
-    } catch (e) { /* navegação privada/sem espaço: segue sem salvar */ }
+      const r = await fetch("/api/board", { headers: { "x-board-key": this._apiKey() }, cache: "no-store" });
+      if (r.ok) {
+        const j = await r.json();
+        const data = j && j.data;
+        this._syncOn = true; this._syncReady = true;
+        if (data && data.v === DATA_VERSION && Array.isArray(data.items)) {
+          this._lastSyncedStr = JSON.stringify({ v: DATA_VERSION, items: data.items, docs: data.docs || {}, detExtra: data.detExtra || {}, nextId: data.nextId || this.state.nextId });
+          this.setState({ items: data.items, docs: data.docs || {}, detExtra: data.detExtra || {}, nextId: data.nextId || this.state.nextId, syncStatus: "ok" });
+        } else {
+          this.setState({ syncStatus: "ok" });
+          this._pushNow();
+        }
+        return;
+      }
+      // 503 = Blob store ainda não criado; segue só no localStorage
+      this._syncOn = false; this._syncReady = true;
+      this.setState({ syncStatus: r.status === 503 ? "idle" : "off" });
+    } catch (e) {
+      this._syncOn = false; this._syncReady = true;
+      this.setState({ syncStatus: "off" });
+    }
+  }
+
+  /* grava o estado inteiro no servidor (chamado com debounce a cada mudança) */
+  _pushNow() {
+    if (!this._syncOn) return;
+    const str = JSON.stringify({ v: DATA_VERSION, items: this.state.items, docs: this.state.docs, detExtra: this.state.detExtra, nextId: this.state.nextId });
+    this._lastSyncedStr = str;
+    this.setState({ syncStatus: "saving" });
+    fetch("/api/board", { method: "POST", headers: { "content-type": "application/json", "x-board-key": this._apiKey() }, body: str })
+      .then((r) => this.setState({ syncStatus: r.ok ? "ok" : "off" }))
+      .catch(() => this.setState({ syncStatus: "off" }));
+  }
+
+  renderVals() {
+    const payloadStr = JSON.stringify({ v: DATA_VERSION, items: this.state.items, docs: this.state.docs, detExtra: this.state.detExtra, nextId: this.state.nextId });
+    try { localStorage.setItem(SAVE_KEY, payloadStr); } catch (e) { /* navegação privada/sem espaço: segue sem salvar */ }
+    if (this._syncReady && this._syncOn && payloadStr !== this._lastSyncedStr) {
+      clearTimeout(this._syncTimer);
+      this._syncTimer = setTimeout(() => this._pushNow(), 900);
+    }
     const alertaDias = this.props.alertaPrazoDias ?? 5;
     const mostrarDescartadas = this.props.mostrarDescartadas ?? true;
     const nivelFg = (n) => n === "N1" ? "#3EE0CC" : n === "N4" ? "#FF8A65" : "#6E6E74";
@@ -1748,6 +1793,8 @@ class Component extends DCLogic {
       criarCursor: podeCriar ? "pointer" : "default",
       estagiosK,
       total: items.filter(x => x.col !== "lixeira" && !(x.col === "ideias" && x.tag === "descartado")).length,
+      syncLabel: { idle: "só neste aparelho", ok: "na nuvem ✓", saving: "salvando…", off: "offline" }[this.state.syncStatus] || "",
+      syncFg: { idle: "#6E6E74", ok: "#3EE0CC", saving: "#FFC78A", off: "#F472B6" }[this.state.syncStatus] || "#6E6E74",
       /* lixeira */
       temLixo: lixo.length > 0, lixoCount: lixo.length, lixo: lixoView, lixeiraVazia: lixo.length === 0,
       lixeiraOpen: this.state.lixeira,

@@ -44,7 +44,7 @@
       const ok = (await sha256(v)) === ACCESS_HASH;
       busy = false;
       if (ok) {
-        try { localStorage.setItem(ACCESS_KEY, "1"); } catch { /* ignora */ }
+        try { localStorage.setItem(ACCESS_KEY, "1"); localStorage.setItem("fluxo_key", v); } catch { /* ignora */ }
         overlay.remove();
       } else if (force || v.length >= 16) {
         // errou: limpa em silêncio (sem texto) + tremidinha

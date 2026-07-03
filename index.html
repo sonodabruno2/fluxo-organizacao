@@ -504,7 +504,7 @@ svg { pointer-events: none; }
             </div>
             <div>
               <div style="font-size: 13.5px; font-weight: 500; margin-bottom: 4px;">Link da landing page</div>
-              <div style="font-size: 12px; color: #6E6E74; margin-bottom: 10px; line-height: 1.5;">A LP é gerada inteira e publicada como one page — cole o link aqui pra armazenar e ver o preview.</div>
+              <div style="font-size: 12px; color: #6E6E74; margin-bottom: 10px; line-height: 1.5;">A LP é gerada inteira e publicada como one page — cole o link aqui pra armazenar e abrir rápido.</div>
               <div style="display: flex; align-items: center; gap: 8px; border: 1px solid #2A2A2E; background: #121214; border-radius: 12px; padding: 4px 4px 4px 14px;">
                 <span style="color: #6E6E74; flex: none;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"></path><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"></path></svg></span>
                 <input value="{{ md.lpLink }}" onChange="{{ md.onLpLink }}" placeholder="https://..." style="border: 0; background: transparent; outline: 0; flex: 1; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12.5px; color: #F4F4F5; min-width: 0;">
@@ -516,15 +516,19 @@ svg { pointer-events: none; }
               </div>
             </div>
             <sc-if value="{{ md.lpTemLink }}">
-              <div style="border: 1px solid #2A2A2E; border-radius: 16px; overflow: hidden; background: #1A1A1D;">
+              <a href="{{ md.lpHref }}" target="_blank" style="text-decoration: none; display: block; border: 1px solid #2A2A2E; border-radius: 16px; overflow: hidden; background: #1A1A1D;" style-hover="border-color: #3EE0CC;">
                 <div style="display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid #232327; background: #1E1E22;">
                   <span style="width: 9px; height: 9px; border-radius: 9999px; background: #F472B6;"></span>
                   <span style="width: 9px; height: 9px; border-radius: 9999px; background: #FFC78A;"></span>
                   <span style="width: 9px; height: 9px; border-radius: 9999px; background: #3EE0CC;"></span>
                   <span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #6E6E74; margin-left: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ md.lpLink }}</span>
                 </div>
-                <iframe src="{{ md.lpHref }}" style="width: 100%; height: 420px; border: 0; background: #FFFFFF; display: block;"></iframe>
-              </div>
+                <div style="padding: 30px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;">
+                  <span style="width: 44px; height: 44px; border-radius: 12px; background: #143A36; color: #3EE0CC; display: inline-flex; align-items: center; justify-content: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"></path><path d="M8 7h9v9"></path></svg></span>
+                  <span style="font-size: 12.5px; font-weight: 500; color: #F4F4F5;">Abrir a landing page em nova aba</span>
+                  <span style="font-size: 11px; color: #6E6E74;">clique aqui pra ver a página publicada</span>
+                </div>
+              </a>
             </sc-if>
             <sc-if value="{{ md.lpSemLink }}">
               <div style="border: 1.5px dashed #3A3A40; border-radius: 16px; padding: 34px 18px; display: flex; flex-direction: column; align-items: center; gap: 8px; background: #121214; text-align: center;">

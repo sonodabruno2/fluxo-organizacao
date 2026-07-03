@@ -13,9 +13,15 @@ const KEY = "board.json";
 // A Vercel às vezes cria o token com prefixo (ex.: lowt_blob_BLOB_READ_WRITE_TOKEN).
 // Procuramos qualquer env que termine em BLOB_READ_WRITE_TOKEN.
 function getBlobToken() {
-  if (process.env.BLOB_READ_WRITE_TOKEN) return process.env.BLOB_READ_WRITE_TOKEN;
-  const k = Object.keys(process.env).find((x) => x.endsWith("BLOB_READ_WRITE_TOKEN") || (x.includes("BLOB") && x.includes("TOKEN")));
-  return k ? process.env[k] : null;
+  let t = process.env.BLOB_READ_WRITE_TOKEN;
+  if (!t) {
+    const k = Object.keys(process.env).find((x) => x.endsWith("BLOB_READ_WRITE_TOKEN") || (x.includes("BLOB") && x.includes("TOKEN")));
+    t = k ? process.env[k] : null;
+  }
+  if (!t) return null;
+  // remove aspas/espaços/quebras que às vezes vêm coladas junto
+  t = String(t).trim().replace(/^["']|["']$/g, "").trim();
+  return t || null;
 }
 
 function lerBody(req) {

@@ -233,7 +233,7 @@ svg { pointer-events: none; }
         </div>
         <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex: none;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span onClick="{{ md.copiarJson }}" title="Copia o molde JSON deste produto — cole no Claude pra gerar um produto novo já estruturado" style="display: inline-flex; align-items: center; gap: 6px; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; font-weight: 500; padding: 8px 13px; border-radius: 9999px; background: {{ md.jsonBg }}; color: {{ md.jsonFg }}; cursor: pointer; white-space: nowrap; transition: background 140ms;" style-hover="background: #2E2E33;">
+            <span onClick="{{ md.copiarJson }}" title="Copia o molde JSON já com o que este curso tem preenchido (público, promessa, conteúdo…) — o Claude usa isso como base pra gerar/adaptar o resto. Cole no Claude." style="display: inline-flex; align-items: center; gap: 6px; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; font-weight: 500; padding: 8px 13px; border-radius: 9999px; background: {{ md.jsonBg }}; color: {{ md.jsonFg }}; cursor: pointer; white-space: nowrap; transition: background 140ms;" style-hover="background: #2E2E33;">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
               {{ md.jsonLabel }}
             </span>
@@ -1607,20 +1607,34 @@ class Component extends DCLogic {
       /* ---- JSON do produto: molde vivo pra gerar novos produtos no Claude ----
          Montado a partir dos MESMOS dados que os modais renderizam — se os modais
          ganharem campos novos, adicione-os aqui também pra manter o molde em dia. */
+      const jaPreenchido = [];
+      if (pubData.quem.trim()) jaPreenchido.push("publico.quem");
+      if (pubData.dor.trim()) jaPreenchido.push("publico.dor");
+      if (pubData.desejo.trim()) jaPreenchido.push("publico.desejo");
+      if (pubData.objecoes.trim()) jaPreenchido.push("publico.objecoes");
+      if (pubData.canais.trim()) jaPreenchido.push("publico.canais");
+      if (pubData.tom.trim()) jaPreenchido.push("publico.tom");
+      if ((d.promessa || "").trim()) jaPreenchido.push("promessa");
+      if (conteudo.trim()) jaPreenchido.push("material.conteudo");
+      if (lpHeadlinesArr.some(h => !h.riscada)) jaPreenchido.push("landingPage.headlines");
+      if ((d.lpBlocos || []).length) jaPreenchido.push("landingPage.blocos");
+
       const jsonProduto = {
-        _oQueEIsto: "Molde de produto-curso da Máquina de Low Ticket. Os valores preenchidos são um exemplo real do nível de detalhe esperado.",
+        _oQueEIsto: "Molde de produto-curso da Máquina de Low Ticket. Os campos JÁ preenchidos abaixo são deste curso — servem de base e contexto pra gerar o resto.",
         _instrucoes: [
-          "Copie este JSON inteiro, cole no Claude e diga qual novo produto-curso quer criar (tema, público, preço).",
-          "O Claude deve devolver ESTE MESMO JSON preenchido pro novo produto — mesmas chaves, mesmos tipos, sem comentários.",
-          "publico: preencha os 6 campos pensando numa pessoa real; objecoes entre aspas, separadas por vírgula.",
+          "REGRA PRINCIPAL: os campos listados em _jaPreenchido já têm conteúdo deste curso — RESPEITE-OS e use-os como base. Todo o material que você gerar/completar deve ficar coerente com eles.",
+          "Ex.: se 'publico' já está preenchido, headlines, copy da página e criativo devem falar direto com ESSE público, com essa dor e esse tom — não invente outro.",
+          "Complete só os campos vazios (e ajuste algo só se eu pedir). Não descarte nem reescreva o que já existe sem eu pedir.",
+          "Se eu pedir um curso NOVO do zero, aí sim preencha tudo; devolva SEMPRE este mesmo JSON — mesmas chaves, mesmos tipos, sem comentários.",
+          "publico: 6 campos pensando numa pessoa real; objecoes entre aspas, separadas por vírgula.",
           "landingPage.headlines: SEMPRE 10 opções com ângulos variados (resultado, objeção, contraintuitivo, prova, urgência, público, preço, tempo).",
-          "landingPage.blocos: um item por bloco da página, com orientacao (como escrever) e conteudo (a copy completa do bloco).",
-          "criativo.frasesImagem: 10 frases CURTAS pra escrever NA imagem do anúncio (máx. 8-10 palavras cada).",
-          "criativo.descricoes: 10 legendas/descrições DIFERENTES pro post, prontas pra publicar.",
+          "landingPage.blocos: um item por bloco, com orientacao (como escrever) e conteudo (a copy completa do bloco).",
+          "criativo.frasesImagem: 10 frases CURTAS pra escrever NA imagem (máx. 8-10 palavras); criativo.descricoes: 10 legendas diferentes.",
           "criativo.carrossel: conteúdo card a card; criativo.roteiroVideo: roteiro completo com marcação de tempo.",
           "material.estrutura: 10-12 partes; material.conteudo: escreva o material na íntegra, parte por parte.",
-          "Pra subir na máquina: botão Novo produto → Subir com IA → cole o JSON devolvido → Processar e criar card.",
+          "Pra subir na máquina: Novo produto → Subir com IA → cole o JSON devolvido → Processar e criar card.",
         ],
+        _jaPreenchido: jaPreenchido,
         produto: { nome: mItem.nome, formato: (mItem.grupo || "Curso completo").split("·")[0].trim(), preco, nivelEsforco: mItem.nivel || "N2", prazoDias: mItem.prazo ?? 30 },
         publico: { quem: pubData.quem, dor: pubData.dor, desejo: pubData.desejo, objecoes: pubData.objecoes, canais: pubData.canais, tom: pubData.tom },
         promessa: d.promessa || "",
@@ -1696,7 +1710,7 @@ class Component extends DCLogic {
         critCarrosselCards: critCarrossel.map((c, i) => ({ n: pad2(i + 1), titulo: c.titulo || "Card " + (i + 1), texto: c.texto || "" })),
         critRoteiroVideo: critVideoRoteiro,
         copiarJson,
-        jsonLabel: this.state.jsonCopiado ? "JSON copiado ✓" : "JSON p/ Claude",
+        jsonLabel: this.state.jsonCopiado ? "JSON copiado ✓" : "JSON usa o já preenchido",
         jsonBg: this.state.jsonCopiado ? "#143A36" : "#232327",
         jsonFg: this.state.jsonCopiado ? "#3EE0CC" : "#A8A8AE",
         critRecTexto: critFormatoRecs[critTab],

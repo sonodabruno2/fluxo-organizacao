@@ -10,6 +10,14 @@ const { put, list } = require("@vercel/blob");
 
 const KEY = "board.json";
 
+// A Vercel às vezes cria o token com prefixo (ex.: lowt_blob_BLOB_READ_WRITE_TOKEN).
+// Procuramos qualquer env que termine em BLOB_READ_WRITE_TOKEN.
+function getBlobToken() {
+  if (process.env.BLOB_READ_WRITE_TOKEN) return process.env.BLOB_READ_WRITE_TOKEN;
+  const k = Object.keys(process.env).find((x) => x.endsWith("BLOB_READ_WRITE_TOKEN") || (x.includes("BLOB") && x.includes("TOKEN")));
+  return k ? process.env[k] : null;
+}
+
 function lerBody(req) {
   if (req.body && typeof req.body === "object") return Promise.resolve(req.body);
   if (typeof req.body === "string") { try { return Promise.resolve(JSON.parse(req.body)); } catch (e) { return Promise.resolve(null); } }
@@ -27,8 +35,12 @@ module.exports = async (req, res) => {
     const provided = req.headers["x-board-key"] || "";
     if (provided !== secret) { res.status(401).json({ error: "nao-autorizado" }); return; }
   }
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  if (!token) { res.status(503).json({ error: "blob-store-nao-configurado" }); return; }
+  const token = getBlobToken();
+  if (!token) {
+    const blobKeys = Object.keys(process.env).filter((x) => x.includes("BLOB"));
+    res.status(503).json({ error: "blob-store-nao-configurado", envBlobKeys: blobKeys });
+    return;
+  }
 
   try {
     if (req.method === "GET") {

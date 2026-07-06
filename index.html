@@ -1692,6 +1692,14 @@ class Component extends DCLogic {
       };
 
       /* ---- Briefing JSON pra CRIAR a landing page no Claude Design ---- */
+      // preço: 12x com "juros" (~1,21x) em destaque + valor à vista (pagamento único)
+      const _pm = String(preco).match(/(\d+[.,]?\d*)/);
+      const precoNum = _pm ? parseFloat(_pm[1].replace(".", "").replace(",", ".")) : 0;
+      const _fmtBRL = (n) => "R$ " + n.toFixed(2).replace(".", ",");
+      const _parcela = precoNum ? Math.round((precoNum * 1.213 / 12) * 100) / 100 : 0;
+      const precoAvista = precoNum ? _fmtBRL(precoNum) : (preco || "definir");
+      const precoParcelado = precoNum ? ("12x de " + _fmtBRL(_parcela)) : "12x (definir)";
+
       const jsonLandingPage = {
         _oQueEIsto: "Briefing completo pra você (Claude) CRIAR a landing page de venda (one page) deste produto, com design de alto nível e foco em conversão.",
         _instrucoes: [
@@ -1702,6 +1710,9 @@ class Component extends DCLogic {
           "CTAs claros e repetidos levando ao checkout (linkCheckout); ancore o preço quando houver (de/por).",
           "material.arquivo é o produto entregue (ebook/guia low ticket) — use como contexto do que a pessoa recebe; material.conteudo traz o texto do material pra você entender a profundidade e extrair benefícios reais.",
           "Design: hierarquia visual forte, seções bem separadas, respiro, prova e urgência HONESTAS, tipografia caprichada, imagens leves. Sem placeholder de lorem ipsum — escreva a copy de verdade.",
+          "SEMPRE inclua as 'secoesObrigatorias' abaixo (depoimentos, garantia, bônus, oferta/preço), além das seções de 'estrutura' — normalmente na segunda metade da página.",
+          "PREÇO (use 'precoDetalhe'): a chamada PRINCIPAL de preço é o parcelado 12x em destaque grande; mostre também o valor à vista como 'pagamento único'. Ao lado do bloco de preço, liste TODOS os benefícios/entregáveis resumidos em bullets, com reforço das garantias (7 dias) e dos métodos de pagamento (cartão, Pix, boleto).",
+          "Depoimentos SEMPRE em tom informal (parecendo mensagem de WhatsApp), com o porquê a pessoa gostou (o que resolveu/resultado). Bônus SEMPRE com preço 'de' (cheio, riscado) → 'por GRÁTIS/incluso'.",
         ],
         produto: { nome: mItem.nome, formato: (mItem.grupo || "Curso completo").split("·")[0].trim(), preco },
         publico: { quem: pubData.quem, dor: pubData.dor, desejo: pubData.desejo, objecoes: pubData.objecoes, tomDeVoz: pubData.tom, canais: pubData.canais },
@@ -1710,6 +1721,21 @@ class Component extends DCLogic {
         estrutura: lpEstruturaArr.map(label => { const b = lpBlocosDe(label); return { secao: label, orientacao: b.orientacao, conteudo: b.conteudo }; }),
         material: { arquivo: arquivoNome || null, arquivoUrl: arquivoUrl || null, conteudo: conteudo || "" },
         linkCheckout: (doc.checkout ?? (mItem.checkout || "")) || "definir",
+        precoDetalhe: {
+          avista: precoAvista,
+          pagamentoUnico: precoAvista + " à vista (pagamento único)",
+          parcelado: precoParcelado,
+          destaque: precoParcelado + " no cartão",
+          regra: "Chamada principal = parcelado 12x em destaque (com juros do cartão, ~1,21x do à vista); o à vista aparece como pagamento único. Ex.: R$ 47 → 12x de R$ 4,75; R$ 67 → ~12x de R$ 6,50.",
+          metodosPagamento: ["Cartão de crédito (até 12x)", "Pix", "Boleto"],
+          aoLadoDoPreco: "Resumo de todos os benefícios/entregáveis em bullets + reforço da garantia de 7 dias + selos dos métodos de pagamento.",
+        },
+        secoesObrigatorias: [
+          { secao: "Depoimentos", orientacao: "3 a 5 depoimentos de clientes satisfeitos, TOM INFORMAL (como print de mensagem/WhatsApp), cada um dizendo o PORQUÊ gostou — o que resolveu, o resultado que teve, com detalhe humano e específico. Nome + inicial (ou avatar genérico). Nada corporativo/robótico." },
+          { secao: "Garantia de 7 dias", orientacao: "Garantia incondicional: se em até 7 dias após a compra não gostar, devolve-se 100% do valor, sem perguntas e sem burocracia. Selo/ícone de garantia e texto que tira o medo de comprar (risco zero)." },
+          { secao: "Bônus inclusos", orientacao: "Liste os bônus que acompanham o pacote. Para CADA bônus: nome + o que é + preço 'de' (valor cheio, riscado) → 'por GRÁTIS / incluso no pacote'. Ao final, some o valor total dos bônus pra ancorar (ex.: 'tudo isso: R$ XXX — hoje incluso de graça')." },
+          { secao: "Oferta e preço final", orientacao: "Bloco de preço com o parcelado (precoDetalhe.parcelado) em DESTAQUE grande como preço principal, e o à vista (precoDetalhe.pagamentoUnico) logo abaixo. AO LADO do preço: bullets resumindo todos os benefícios/entregáveis + garantia de 7 dias + métodos de pagamento (precoDetalhe.metodosPagamento). CTA forte pro checkout (linkCheckout)." },
+        ],
       };
       const copiarJsonLP = () => {
         const txt = JSON.stringify(jsonLandingPage, null, 2);
